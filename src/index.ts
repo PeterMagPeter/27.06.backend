@@ -24,19 +24,22 @@ const app = express();
 
 app.use(cors({
   credentials: true,
-  // origin: "*"
+  origin: process.env.CORS_ORIGIN || "*"
 }));
 
 app.use(compression());
 app.use(cookieParser());
 app.use(bodyParser.json());
 
+const httpPort = parseInt(process.env.HTTP_PORT || '3001');
+const httpsPort = parseInt(process.env.HTTPS_PORT || '3000');
+
 const server = http.createServer(app);
-const testPort: any = parseInt(process.env.HTTP_PORT!)
 startWebSocketConnection(server);
-server.listen(testPort, () => {
-  console.log("Server running on http://localhost:"+testPort+"/");
-})
+
+server.listen(httpPort, () => {
+  console.log(`HTTP server running on http://localhost:${httpPort}/`);
+});
 
 // Set up MOngoDB URL
 // const MONGO_URL = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PW}@${process.env.MONGO_CLUSTER}/?retryWrites=true&w=majority&appName=OceanCombat`;
