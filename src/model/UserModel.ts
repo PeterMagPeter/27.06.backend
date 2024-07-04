@@ -1,6 +1,6 @@
 import { model, Model, Schema } from "mongoose"
 import bcrypt from "bcryptjs"
-import { ExpirationTime } from "src/Resources";
+import { ExpirationTime } from "../Resources";
 import { ObjectId } from "mongodb";
 
 interface IUserMethods {

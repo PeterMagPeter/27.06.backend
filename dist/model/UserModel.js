@@ -15,7 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.User = void 0;
 const mongoose_1 = require("mongoose");
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
-const Resources_1 = require("src/Resources");
+const Resources_1 = require("../Resources");
 const mongodb_1 = require("mongodb");
 ;
 ;
