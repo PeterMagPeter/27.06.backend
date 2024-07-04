@@ -26,37 +26,54 @@ exports.loginRouter.get("/", (req, res, next) => __awaiter(void 0, void 0, void 
             res.send(userResource);
         }
         else {
-            res.clearCookie("access_token");
-            res.send(false);
+            res.clearCookie("ocean-combat_access_token");
+            res.status(400).send(false);
         }
     }
     catch (error) {
-        res.clearCookie("access_token");
-        res.send(false);
+        res.clearCookie("ocean-combat_access_token");
+        res.status(400).send(false);
+        next(error);
     }
 }));
-//post
+//post cookie
 exports.loginRouter.post("/", (0, express_validator_1.body)("email").isString().isLength({ min: 1, max: 100 }), (0, express_validator_1.body)("password").isLength({ min: 1, max: 100 }), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const errors = (0, express_validator_1.validationResult)(req);
     if (!errors.isEmpty()) {
         return res.status(401).json({ errors: errors.array() });
     }
+    // Extract email from req as additional factor, to make cookie name unique
+    const email = req.body.email;
     try {
         const data = (0, express_validator_1.matchedData)(req);
         const jwtString = yield (0, JWTService_1.verifyPasswordAndCreateJWT)(data.email, data.password);
         const login = (0, JWTService_1.verifyJWT)(jwtString);
+        // Exp. needs to be multiplied by 1000 to convert secs ==> millisec [Needed by JavaScript date object]
         const exp = new Date(login.exp * 1000);
-        res.cookie("access_token", jwtString, { httpOnly: true, secure: true, sameSite: "none", expires: exp });
+        res.cookie("ocean-combat_access_token", jwtString, {
+            httpOnly: true, secure: true, sameSite: "none", expires: exp
+        });
         res.status(201).send(login);
     }
     catch (error) {
-        res.clearCookie("access_token");
+        res.clearCookie("ocean-combat_access_token");
         res.status(401).send();
+        next(error);
     }
 }));
-//delete
+//delete cookie
 exports.loginRouter.delete("/", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    res.clearCookie("access_token");
+    // Extract email from req to find unique cookie name
+    // const email = req.body.email;
+    // if (!email) {
+    //     return res.status(400).send({ error: "Email is required!" });
+    // }
+    // Clear cookie [This code part has been written by AI]
+    res.clearCookie("ocean-combat_access_token", {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none"
+    });
     res.status(204).send();
 }));
 //# sourceMappingURL=login.js.map

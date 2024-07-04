@@ -9,19 +9,32 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.login = login;
+exports.login = void 0;
 const UserModel_1 = require("../model/UserModel");
+const DBService_1 = require("./DBService");
 /**
  * Checks name and password. If successful, true is returned, otherwise false
  */
 function login(email, password) {
     return __awaiter(this, void 0, void 0, function* () {
-        const user = yield UserModel_1.User.findOne({ email: email }).exec();
+        // Try to find user in db
+        const dbUser = yield (0, DBService_1.getUserByMail)(email);
+        // Check, if user account is already activated
+        if (dbUser && !dbUser.verified) {
+            return false;
+        }
+        // Create user (just for use of isCorrectPassword() from user schema)
+        let user;
+        if (dbUser !== null) {
+            user = yield UserModel_1.User.create(Object.assign({}, dbUser));
+        }
+        // Check password
         const pwValid = yield (user === null || user === void 0 ? void 0 : user.isCorrectPassword(password));
-        if (!user || !pwValid)
+        if (!pwValid)
             return false;
         else
             return { id: user === null || user === void 0 ? void 0 : user.id };
     });
 }
+exports.login = login;
 //# sourceMappingURL=AuthenticationService.js.map

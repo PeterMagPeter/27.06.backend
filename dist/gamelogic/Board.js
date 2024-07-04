@@ -1,8 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Board = void 0;
-exports.signalSinking = signalSinking;
-exports.signalGameEnd = signalGameEnd;
+exports.signalGameEnd = exports.signalSinking = exports.Board = void 0;
 const logger_1 = require("../logger");
 // other identifiers:
 // "O" = MISS; "." = NOTHING; "X" = HIT; "D" = DESTROYED
@@ -108,7 +106,9 @@ exports.Board = Board;
 function signalSinking(ship) {
     return ship;
 }
+exports.signalSinking = signalSinking;
 function signalGameEnd(winner) {
     return winner;
 }
+exports.signalGameEnd = signalGameEnd;
 //# sourceMappingURL=Board.js.map

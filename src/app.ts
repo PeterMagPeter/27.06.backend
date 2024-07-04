@@ -8,6 +8,7 @@ import cookieParser from 'cookie-parser';
 import { configureCORS } from './configCORS';
 import { userRouter } from './routes/user';
 import { guestRouter } from './routes/guest';
+import { verificationRouter } from './routes/verification';
 
 const app = express();
 configureCORS(app);
@@ -20,5 +21,6 @@ app.use(cookieParser());
 app.use("/api/login", loginRouter);
 app.use("/api/user", userRouter);
 app.use("/api/guest", guestRouter);
+app.use("/api/verification", verificationRouter);
 
 export default app;

@@ -11,6 +11,7 @@ const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const configCORS_1 = require("./configCORS");
 const user_1 = require("./routes/user");
 const guest_1 = require("./routes/guest");
+const verification_1 = require("./routes/verification");
 const app = (0, express_1.default)();
 (0, configCORS_1.configureCORS)(app);
 // Middleware:
@@ -20,5 +21,6 @@ app.use((0, cookie_parser_1.default)());
 app.use("/api/login", login_1.loginRouter);
 app.use("/api/user", user_1.userRouter);
 app.use("/api/guest", guest_1.guestRouter);
+app.use("/api/verification", verification_1.verificationRouter);
 exports.default = app;
 //# sourceMappingURL=app.js.map

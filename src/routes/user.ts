@@ -1,5 +1,5 @@
 import express from "express";
-import { createUser, deleteUser, getAllUsers, getUser, updateUser } from "../services/UserService";
+import { createUserAccount_UserService, deleteUser_UserService, getAllUsers_UserService, getUser_UserService, updateUser_UserService } from "../services/UserService";
 import { UserResource } from "../Resources";
 import { body, matchedData, param, validationResult } from "express-validator";
 
@@ -39,7 +39,7 @@ userRouter.delete("/all", async (_req, res, _next) => {
  * Sends all users (getAlleUser() ignores to send email adresses)
  */
 userRouter.get("/all", async (_req, res, _next) => {
-  const allUsers = await getAllUsers();
+  const allUsers = await getAllUsers_UserService();
   res.send(allUsers);
 })
 
@@ -55,7 +55,7 @@ userRouter.delete("/:id",
     }
     const id = req.params!.id;
     try {
-      await deleteUser(id);
+      await deleteUser_UserService(id);
       res.sendStatus(204);
     } catch (error) {
       res.status(404);
@@ -86,7 +86,7 @@ userRouter.post("/",
     const userData = matchedData(req) as UserResource;
     try {
       // Create user with schema & write it into the db
-      const user = await createUser(userData);  
+      const user = await createUserAccount_UserService(userData);  
       res.status(201).send(user);
       return;   // To prevent function continues in catch-block, when everything was fine.
     } catch (error) {
@@ -123,12 +123,9 @@ userRouter.post("/",
 userRouter.put("/:id",
   param("id").isMongoId(),
   body("id").isMongoId(),
-  body("email").isString().isLength({ min: 1, max: 100 }),
+  body("email").optional().isString().isLength({ min: 1, max: 100 }),
   body("password").optional().isString().isLength({ min: PW_MIN_LENGTH, max: PW_MAX_LENGTH }).isStrongPassword(),
-  body("username").isString().isLength({ min: NAME_MIN_LENGTH, max: NAME_MAX_LENGTH }),
-  body("points").optional().isNumeric().isInt({ min: POINTS_MIN, max: POINTS_MAX }),
   body("premium").optional().isBoolean(),
-  body("level").optional().isNumeric().isInt({ min: LVL_MIN, max: LVL_MAX }),
   body("gameSound").optional().isBoolean(),
   body("music").optional().isBoolean(),
   body("higherLvlChallenge").optional().isBoolean(),
@@ -140,14 +137,14 @@ userRouter.put("/:id",
     }
     const id = req.params!.id;
     const userData = matchedData(req) as UserResource;
-    if (id !== userData.id) {
+    if (id !== userData._id) {
       return res.status(400).send({
         errors: [{ "location": "params", "path": "id" },
         { "location": "body", "path": "id" }]
       });
     }
     try {
-      const update = await updateUser(userData);
+      const update = await updateUser_UserService(userData);
       res.send(update);
     } catch (error) {
       const e = error as Error;
@@ -180,11 +177,16 @@ userRouter.put("/:id",
 /** 
  * Sends a single user.  
  */
-userRouter.get("/:id", 
+userRouter.get("/:id",
+  param("id").isMongoId(),
   async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    const id = req.params!.id;
   try {
-    const id = req.params.id;
-    const user = await getUser(id);
+    const user = await getUser_UserService(id);
     res.send(user);
   } catch (error) {
     res.sendStatus(404);

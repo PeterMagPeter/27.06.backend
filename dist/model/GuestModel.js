@@ -9,8 +9,8 @@ const guestSchema = new mongoose_1.Schema({
     points: { type: Number, default: 0 },
     //picture: {type: String, default: ""},     NICE TO HAVE
     level: { type: Number, default: 1 },
-    gameSound: { type: Boolean, default: true },
-    music: { type: Boolean, default: true }
+    gameSound: { type: Number, default: 0.3 },
+    music: { type: Number, default: 0.3 },
 });
 exports.Guest = (0, mongoose_1.model)("Guest", guestSchema);
 //# sourceMappingURL=GuestModel.js.map

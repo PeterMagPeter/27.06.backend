@@ -9,7 +9,29 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.calculateLevel = calculateLevel;
+exports.calculateLevel = exports.ExpirationTime = exports.Country = exports.Leaderboard = exports.Gamestatus = void 0;
+var Gamestatus;
+(function (Gamestatus) {
+    Gamestatus["Active"] = "active";
+    Gamestatus["Waiting"] = "waiting";
+    Gamestatus["Full"] = "full";
+    Gamestatus["Finished"] = "finished";
+    Gamestatus["Test"] = "test";
+})(Gamestatus || (exports.Gamestatus = Gamestatus = {}));
+var Leaderboard;
+(function (Leaderboard) {
+    Leaderboard["Global"] = "global";
+    Leaderboard["Local"] = "local";
+})(Leaderboard || (exports.Leaderboard = Leaderboard = {}));
+var Country;
+(function (Country) {
+    Country["DE"] = "DE";
+})(Country || (exports.Country = Country = {}));
+// Only used to set a expiration time
+var ExpirationTime;
+(function (ExpirationTime) {
+    ExpirationTime[ExpirationTime["TwentyFour"] = 86400000] = "TwentyFour";
+})(ExpirationTime || (exports.ExpirationTime = ExpirationTime = {}));
 // Point-Lvl-System
 function calculateLevel(points) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -125,4 +147,5 @@ function calculateLevel(points) {
         return levelThresholds.length;
     });
 }
+exports.calculateLevel = calculateLevel;
 //# sourceMappingURL=Resources.js.map

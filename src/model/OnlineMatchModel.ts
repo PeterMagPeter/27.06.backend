@@ -1,4 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
+import { Gamestatus } from 'src/Resources';
 
 export interface IOnlineMatchModel {
     roomId: string;
@@ -12,6 +13,7 @@ export interface IOnlineMatchModel {
     players: string[];
     maxPlayers: number;
     createdAt: Date;
+    gamestatus: Gamestatus;
 }
 
 const onlineMatchModelSchema: Schema = new Schema({
@@ -26,7 +28,8 @@ const onlineMatchModelSchema: Schema = new Schema({
     players: [{ type: String }],
     //players: { type: Schema.Types.ObjectId, ref: 'User' },
     maxPlayers: { type: Number },
-    createdAt: { type: Date, default: Date.now }
+    createdAt: { type: Date, default: Date.now },
+    gamestatus: { type: Gamestatus, default: Gamestatus.Waiting }
 });
 
 export const OnlineMatchModel = mongoose.model<IOnlineMatchModel>('OnlineMatch', onlineMatchModelSchema);

@@ -8,8 +8,8 @@ export interface IGuest{
     points?: number,
     //picture?: string,                         NICE TO HAVE
     level?: number,
-    gameSound?: boolean,
-    music?: boolean
+    gameSound?: number,
+    music?: number,
 };
 
 // Guest schema
@@ -18,8 +18,8 @@ const guestSchema = new Schema<IGuest, GuestModel>({
     points: {type: Number, default: 0},
     //picture: {type: String, default: ""},     NICE TO HAVE
     level: {type: Number, default: 1},
-    gameSound: {type: Boolean, default: true},
-    music: {type: Boolean, default: true}
+    gameSound: {type: Number, default: 0.3},
+    music: {type: Number, default: 0.3},
 });
 
 export const Guest = model("Guest", guestSchema);

@@ -9,29 +9,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createUser = createUser;
-exports.updateUser = updateUser;
-exports.getUser = getUser;
-exports.deleteUser = deleteUser;
-exports.getAllUsers = getAllUsers;
+exports.getAllUsers_UserService = exports.deleteUser_UserService = exports.getUser_UserService = exports.updateUser_UserService = exports.createUserAccount_UserService = void 0;
 const UserModel_1 = require("../model/UserModel");
 const DBService_1 = require("./DBService");
 /**
  * Create user with data from UserResource and write it into db
  */
-function createUser(userRes) {
+function createUserAccount_UserService(userRes) {
     return __awaiter(this, void 0, void 0, function* () {
-        const user = yield UserModel_1.User.create({
-            email: userRes.email,
-            password: userRes.password,
-            username: userRes.username,
-            points: userRes.points,
-            premium: userRes.premium,
-            level: userRes.level,
-            gameSound: userRes.gameSound,
-            music: userRes.music,
-            higherLvlChallenge: userRes.higherLvlChallenge
-        });
+        const user = yield UserModel_1.User.create(Object.assign({}, userRes));
         // Write user into db
         try {
             return yield (0, DBService_1.registerUser)(user);
@@ -41,17 +27,16 @@ function createUser(userRes) {
         }
     });
 }
+exports.createUserAccount_UserService = createUserAccount_UserService;
 /**
  * Identify and update user by ID with the given UserResource
  * If no id is provided or user couldn't be found, an error is thrown.
  */
-function updateUser(userRes) {
+function updateUser_UserService(userRes) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (!userRes.id) {
+        if (!userRes._id) {
             throw new Error("Please provide an user to update!");
         }
-        //TODO Implement additional update progress via userSchema.pre(["updateOne", 
-        //"findOneAndUpdate", "updateMany"], async function ()
         try {
             return yield (0, DBService_1.updateUserData)(userRes);
         }
@@ -60,36 +45,38 @@ function updateUser(userRes) {
         }
     });
 }
+exports.updateUser_UserService = updateUser_UserService;
 /**
  * Get and return user by mail.
  * If user couldn't be found an error is thrown.
  */
-function getUser(email) {
+function getUser_UserService(userId) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (!email) {
+        if (!userId) {
             throw new Error("Please provide an email to search for!");
         }
         try {
-            return yield (0, DBService_1.getUserByMail)(email);
+            return yield (0, DBService_1.getUserById)(userId);
         }
         catch (error) {
             throw error;
         }
     });
 }
+exports.getUser_UserService = getUser_UserService;
 /**
  * Identify user by mail.
  * If user couldn't be found an error is thrown.
  */
-function deleteUser(email) {
+function deleteUser_UserService(userId) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (!email) {
+        if (!userId) {
             throw new Error("Please provide an email to search for!");
         }
         try {
-            const result = yield getUser(email);
+            const result = yield getUser_UserService(userId);
             if (result !== null) {
-                return yield (0, DBService_1.deleteUserByMail)(email);
+                return yield (0, DBService_1.deleteUserById)(userId);
             }
         }
         catch (error) {
@@ -97,20 +84,30 @@ function deleteUser(email) {
         }
     });
 }
+exports.deleteUser_UserService = deleteUser_UserService;
 /**
  * Returns all users stored in DB.
  * Omits privacy related data, i.e. email, id and member status
  */
-function getAllUsers() {
+function getAllUsers_UserService() {
     return __awaiter(this, void 0, void 0, function* () {
-        const users = yield UserModel_1.User.find({}).exec();
-        const userResources = users.map(user => ({
+        const users = yield (0, DBService_1.getAllUsers)();
+        let userResources = [];
+        userResources = users.map(user => ({
+            _id: user._id,
+            email: user.email,
             username: user.username,
             points: user.points,
+            premium: user.premium,
             level: user.level,
-            active: user.active
+            gameSound: user.gameSound,
+            music: user.music,
+            higherLvlChallenge: user.higherLvlChallenge,
+            verified: user.verified,
+            verificationTimer: user.verificationTimer
         }));
         return userResources;
     });
 }
+exports.getAllUsers_UserService = getAllUsers_UserService;
 //# sourceMappingURL=UserService.js.map

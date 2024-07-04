@@ -47,7 +47,7 @@ exports.userRouter.delete("/all", (_req, res, _next) => __awaiter(void 0, void 0
  * Sends all users (getAlleUser() ignores to send email adresses)
  */
 exports.userRouter.get("/all", (_req, res, _next) => __awaiter(void 0, void 0, void 0, function* () {
-    const allUsers = yield (0, UserService_1.getAllUsers)();
+    const allUsers = yield (0, UserService_1.getAllUsers_UserService)();
     res.send(allUsers);
 }));
 /**
@@ -60,7 +60,7 @@ exports.userRouter.delete("/:id", (0, express_validator_1.param)("id").isMongoId
     }
     const id = req.params.id;
     try {
-        yield (0, UserService_1.deleteUser)(id);
+        yield (0, UserService_1.deleteUser_UserService)(id);
         res.sendStatus(204);
     }
     catch (error) {
@@ -79,7 +79,7 @@ exports.userRouter.post("/", (0, express_validator_1.body)("email").isString().i
     const userData = (0, express_validator_1.matchedData)(req);
     try {
         // Create user with schema & write it into the db
-        const user = yield (0, UserService_1.createUser)(userData);
+        const user = yield (0, UserService_1.createUserAccount_UserService)(userData);
         res.status(201).send(user);
         return; // To prevent function continues in catch-block, when everything was fine.
     }
@@ -112,21 +112,21 @@ exports.userRouter.post("/", (0, express_validator_1.body)("email").isString().i
 /**
  * Updates the properties of a user
  */
-exports.userRouter.put("/:id", (0, express_validator_1.param)("id").isMongoId(), (0, express_validator_1.body)("id").isMongoId(), (0, express_validator_1.body)("email").isString().isLength({ min: 1, max: 100 }), (0, express_validator_1.body)("password").optional().isString().isLength({ min: PW_MIN_LENGTH, max: PW_MAX_LENGTH }).isStrongPassword(), (0, express_validator_1.body)("username").isString().isLength({ min: NAME_MIN_LENGTH, max: NAME_MAX_LENGTH }), (0, express_validator_1.body)("points").optional().isNumeric().isInt({ min: POINTS_MIN, max: POINTS_MAX }), (0, express_validator_1.body)("premium").optional().isBoolean(), (0, express_validator_1.body)("level").optional().isNumeric().isInt({ min: LVL_MIN, max: LVL_MAX }), (0, express_validator_1.body)("gameSound").optional().isBoolean(), (0, express_validator_1.body)("music").optional().isBoolean(), (0, express_validator_1.body)("higherLvlChallenge").optional().isBoolean(), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+exports.userRouter.put("/:id", (0, express_validator_1.param)("id").isMongoId(), (0, express_validator_1.body)("id").isMongoId(), (0, express_validator_1.body)("email").optional().isString().isLength({ min: 1, max: 100 }), (0, express_validator_1.body)("password").optional().isString().isLength({ min: PW_MIN_LENGTH, max: PW_MAX_LENGTH }).isStrongPassword(), (0, express_validator_1.body)("premium").optional().isBoolean(), (0, express_validator_1.body)("gameSound").optional().isBoolean(), (0, express_validator_1.body)("music").optional().isBoolean(), (0, express_validator_1.body)("higherLvlChallenge").optional().isBoolean(), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const errors = (0, express_validator_1.validationResult)(req);
     if (!errors.isEmpty()) {
         return res.status(400).send({ errors: errors.array() });
     }
     const id = req.params.id;
     const userData = (0, express_validator_1.matchedData)(req);
-    if (id !== userData.id) {
+    if (id !== userData._id) {
         return res.status(400).send({
             errors: [{ "location": "params", "path": "id" },
                 { "location": "body", "path": "id" }]
         });
     }
     try {
-        const update = yield (0, UserService_1.updateUser)(userData);
+        const update = yield (0, UserService_1.updateUser_UserService)(userData);
         res.send(update);
     }
     catch (error) {
@@ -158,10 +158,14 @@ exports.userRouter.put("/:id", (0, express_validator_1.param)("id").isMongoId(),
 /**
  * Sends a single user.
  */
-exports.userRouter.get("/:id", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+exports.userRouter.get("/:id", (0, express_validator_1.param)("id").isMongoId(), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const errors = (0, express_validator_1.validationResult)(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+    const id = req.params.id;
     try {
-        const id = req.params.id;
-        const user = yield (0, UserService_1.getUser)(id);
+        const user = yield (0, UserService_1.getUser_UserService)(id);
         res.send(user);
     }
     catch (error) {
