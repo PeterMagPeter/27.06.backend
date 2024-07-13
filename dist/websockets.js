@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.startWebSocketConnection = startWebSocketConnection;
+exports.startWebSocketConnection = void 0;
 const socket_io_1 = require("socket.io");
 const GameController_Multiplayer_1 = require("./gamelogic/GameController_Multiplayer");
 const GameController_Playtest_1 = require("./gamelogic/GameController_Playtest");
@@ -393,4 +393,5 @@ function startWebSocketConnection(server) {
         }
     });
 }
+exports.startWebSocketConnection = startWebSocketConnection;
 //# sourceMappingURL=websockets.js.map

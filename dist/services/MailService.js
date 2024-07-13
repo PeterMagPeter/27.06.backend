@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sendVerificationEmail = sendVerificationEmail;
+exports.sendVerificationEmail = void 0;
 const dotenv_1 = require("dotenv");
 (0, dotenv_1.configDotenv)();
 const nodemailer_1 = require("nodemailer");
@@ -57,6 +57,7 @@ function sendVerificationEmail(userId, email) {
         });
     });
 }
+exports.sendVerificationEmail = sendVerificationEmail;
 // Send verification mail
 // export async function sendVerificationEmail(userId: ObjectId, userEmail: string) {
 //   const mailSender = process.env.MAIL_USER;

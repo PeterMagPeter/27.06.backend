@@ -12,8 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.verifyPasswordAndCreateJWT = verifyPasswordAndCreateJWT;
-exports.verifyJWT = verifyJWT;
+exports.verifyJWT = exports.verifyPasswordAndCreateJWT = void 0;
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config(); // read ".env"
 const jsonwebtoken_1 = require("jsonwebtoken");
@@ -38,6 +37,7 @@ function verifyPasswordAndCreateJWT(email, password) {
         return jwtString;
     });
 }
+exports.verifyPasswordAndCreateJWT = verifyPasswordAndCreateJWT;
 function verifyJWT(jwtString) {
     const secret = process.env.JWT_SECRET;
     console.log(jwtString, secret);
@@ -53,4 +53,5 @@ function verifyJWT(jwtString) {
         throw new Error("JWTString or secret are not defined.");
     }
 }
+exports.verifyJWT = verifyJWT;
 //# sourceMappingURL=JWTService.js.map

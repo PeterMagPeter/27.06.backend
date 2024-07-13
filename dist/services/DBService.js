@@ -12,24 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.registerUser = registerUser;
-exports.updateUserData = updateUserData;
-exports.getUserById = getUserById;
-exports.getUserByMail = getUserByMail;
-exports.getUserByUsername = getUserByUsername;
-exports.deleteUserById = deleteUserById;
-exports.deleteUserByMail = deleteUserByMail;
-exports.deleteUserByUsername = deleteUserByUsername;
-exports.hostOnlineMatch = hostOnlineMatch;
-exports.joinOnlineMatch = joinOnlineMatch;
-exports.updateOnlineMatch = updateOnlineMatch;
-exports.deleteOnlineMatch = deleteOnlineMatch;
-exports.getPublicOnlinematches = getPublicOnlinematches;
-exports.activateUserAccount = activateUserAccount;
-exports.writeLeaderboard = writeLeaderboard;
-exports.getLeaderboard = getLeaderboard;
-exports.getAllUsers = getAllUsers;
-exports.deleteEntriesFromCollection = deleteEntriesFromCollection;
+exports.deleteEntriesFromCollection = exports.getAllUsers = exports.getLeaderboard = exports.writeLeaderboard = exports.activateUserAccount = exports.getPublicOnlinematches = exports.deleteOnlineMatch = exports.updateOnlineMatch = exports.joinOnlineMatch = exports.hostOnlineMatch = exports.deleteUserByUsername = exports.deleteUserByMail = exports.deleteUserById = exports.getUserByUsername = exports.getUserByMail = exports.getUserById = exports.updateUserData = exports.registerUser = void 0;
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
@@ -75,6 +58,7 @@ function registerUser(registerRes) {
         }
     });
 }
+exports.registerUser = registerUser;
 /**
  * Identify and update user by resource.
  * If user couldn't be found, and an error is thrown.
@@ -188,6 +172,7 @@ function updateUserData(userRes) {
         }
     });
 }
+exports.updateUserData = updateUserData;
 /**
  * Get and return user by email (unique).
  * If user couldn't be found an error is thrown.
@@ -237,6 +222,7 @@ function getUserById(userId) {
         }
     });
 }
+exports.getUserById = getUserById;
 /**
  * Get and return user by email (unique).
  * If user couldn't be found an error is thrown.
@@ -280,6 +266,7 @@ function getUserByMail(email) {
         }
     });
 }
+exports.getUserByMail = getUserByMail;
 /**
  * Get and return user by username (unique).
  * If user couldn't be found an error is thrown.
@@ -329,6 +316,7 @@ function getUserByUsername(username) {
         }
     });
 }
+exports.getUserByUsername = getUserByUsername;
 /**
  * Delete user by id.
  * If user couldn't be found an error is thrown.
@@ -364,6 +352,7 @@ function deleteUserById(userId) {
         }
     });
 }
+exports.deleteUserById = deleteUserById;
 /**
  * Identify and delete user by email.
  * If user couldn't be found an error is thrown.
@@ -395,6 +384,7 @@ function deleteUserByMail(email) {
         }
     });
 }
+exports.deleteUserByMail = deleteUserByMail;
 /**
  * Identify user by username.
  * If user couldn't be found an error is thrown.
@@ -430,6 +420,7 @@ function deleteUserByUsername(username) {
         }
     });
 }
+exports.deleteUserByUsername = deleteUserByUsername;
 // Host public online match
 function hostOnlineMatch(onlineMatch) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -509,6 +500,7 @@ function hostOnlineMatch(onlineMatch) {
         }
     });
 }
+exports.hostOnlineMatch = hostOnlineMatch;
 // Join online match
 function joinOnlineMatch(roomId, username) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -576,6 +568,7 @@ function joinOnlineMatch(roomId, username) {
         }
     });
 }
+exports.joinOnlineMatch = joinOnlineMatch;
 // Update online match settings
 function updateOnlineMatch(onlineMatchResource, username) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -637,6 +630,7 @@ function updateOnlineMatch(onlineMatchResource, username) {
         }
     });
 }
+exports.updateOnlineMatch = updateOnlineMatch;
 // Delete online match
 function deleteOnlineMatch(roomId) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -672,6 +666,7 @@ function deleteOnlineMatch(roomId) {
         }
     });
 }
+exports.deleteOnlineMatch = deleteOnlineMatch;
 // Get public online matches
 function getPublicOnlinematches(gameMode) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -776,6 +771,7 @@ function getPublicOnlinematches(gameMode) {
         }
     });
 }
+exports.getPublicOnlinematches = getPublicOnlinematches;
 /**
  * Identify user by email and activate account.
  * If user couldn't be found an error is thrown.
@@ -828,6 +824,7 @@ function activateUserAccount(userId) {
         }
     });
 }
+exports.activateUserAccount = activateUserAccount;
 // Sorts and rewrites the leaderboard to db
 function writeLeaderboard() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -862,6 +859,7 @@ function writeLeaderboard() {
         }
     });
 }
+exports.writeLeaderboard = writeLeaderboard;
 // Get the leaderboard  
 function getLeaderboard() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -894,6 +892,7 @@ function getLeaderboard() {
         }
     });
 }
+exports.getLeaderboard = getLeaderboard;
 // Get all users
 function getAllUsers() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -933,6 +932,7 @@ function getAllUsers() {
         return userArray;
     });
 }
+exports.getAllUsers = getAllUsers;
 // Delete all entries from collection
 function deleteEntriesFromCollection(collectionName) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -955,4 +955,5 @@ function deleteEntriesFromCollection(collectionName) {
         }
     });
 }
+exports.deleteEntriesFromCollection = deleteEntriesFromCollection;
 //# sourceMappingURL=DBService.js.map
