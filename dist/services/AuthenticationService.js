@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.login = void 0;
+exports.login = login;
 const UserModel_1 = require("../model/UserModel");
 const DBService_1 = require("./DBService");
 /**
@@ -36,5 +36,4 @@ function login(email, password) {
             return { id: user === null || user === void 0 ? void 0 : user.id };
     });
 }
-exports.login = login;
 //# sourceMappingURL=AuthenticationService.js.map

@@ -12,7 +12,23 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteEntriesFromCollection = exports.getAllUsers = exports.getLeaderboard = exports.writeLeaderboardSimpel = exports.activateUserAccount = exports.getPublicOnlinematches = exports.deleteOnlineMatch = exports.updateOnlineMatch = exports.joinOnlineMatch = exports.hostOnlineMatch = exports.deleteUserByUsername = exports.deleteUserByMail = exports.deleteUserById = exports.getUserByUsername = exports.getUserByMail = exports.getUserById = exports.updateUserData = exports.registerUser = void 0;
+exports.registerUser = registerUser;
+exports.updateUserData = updateUserData;
+exports.getUserById = getUserById;
+exports.getUserByMail = getUserByMail;
+exports.getUserByUsername = getUserByUsername;
+exports.deleteUserById = deleteUserById;
+exports.deleteUserByMail = deleteUserByMail;
+exports.deleteUserByUsername = deleteUserByUsername;
+exports.hostOnlineMatch = hostOnlineMatch;
+exports.joinOnlineMatch = joinOnlineMatch;
+exports.updateOnlineMatch = updateOnlineMatch;
+exports.deleteOnlineMatch = deleteOnlineMatch;
+exports.getPublicOnlinematches = getPublicOnlinematches;
+exports.activateUserAccount = activateUserAccount;
+exports.writeToLeaderboard = writeToLeaderboard;
+exports.getAllUsers = getAllUsers;
+exports.deleteEntriesFromCollection = deleteEntriesFromCollection;
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const mongodb_1 = require("mongodb");
@@ -41,9 +57,10 @@ function registerUser(userRes) {
                 throw new Error("Username already registered. Please provide another username to continue!");
             }
             // Write object to db and send a verification mail
-            if (userRes._id && userRes.email && userRes.password) {
-                yield client.db("OceanCombat").collection("Users").insertOne(userRes);
-                yield (0, MailService_1.sendVerificationEmail)(userRes._id, userRes.email);
+            const user = Object.assign({}, userRes);
+            yield client.db("OceanCombat").collection("Users").insertOne(user);
+            if (user.id && user.email) {
+                yield (0, MailService_1.sendVerificationEmail)(user.id, user.email);
                 result = true;
             }
         }
@@ -56,7 +73,6 @@ function registerUser(userRes) {
         }
     });
 }
-exports.registerUser = registerUser;
 /**
  * Identify and update user by resource.
  * If user couldn't be found, and an error is thrown.
@@ -71,7 +87,7 @@ function updateUserData(userRes) {
             console.log("Connected successfully to server");
             const db = client.db("OceanCombat");
             const users = db.collection("Users");
-            const user = yield users.findOne({ _id: userRes._id });
+            const user = yield users.findOne({ _id: new mongodb_1.ObjectId(userRes.id) });
             let changedMail = false;
             if (user !== null) {
                 // Set new values (user settings)
@@ -112,7 +128,7 @@ function updateUserData(userRes) {
                 if (changedMail) {
                     user.verificationTimer = new Date(Date.now() + 1000 * 60 * 60 * 24);
                     user.verified = false;
-                    yield (0, MailService_1.sendVerificationEmail)(user._id, user.email);
+                    yield (0, MailService_1.sendVerificationEmail)(user._id.toString(), user.email);
                 }
                 // Update user settings with new data
                 yield users.findOneAndUpdate({ _id: user._id }, {
@@ -139,7 +155,6 @@ function updateUserData(userRes) {
         }
     });
 }
-exports.updateUserData = updateUserData;
 /**
  * Get and return user by email (unique).
  * If user couldn't be found an error is thrown.
@@ -157,14 +172,15 @@ function getUserById(userId) {
             console.log("Connected successfully to server");
             const db = client.db("OceanCombat");
             const users = db.collection("Users");
-            const user = yield users.findOne({ _id: userId });
+            const user = yield users.findOne({ _id: new mongodb_1.ObjectId(userId) }); // Convert string into ObjectId
             if (user !== null) {
                 result = {
-                    _id: userId,
+                    id: user._id.toString(),
                     email: user.email,
                     password: user.password,
                     username: user.username,
                     points: user.points,
+                    matchPoints: user.matchPoints,
                     team: user.team,
                     premium: user.premium,
                     level: user.level,
@@ -188,7 +204,6 @@ function getUserById(userId) {
         }
     });
 }
-exports.getUserById = getUserById;
 /**
  * Get and return user by email (unique).
  * If user couldn't be found an error is thrown.
@@ -206,11 +221,12 @@ function getUserByMail(email) {
             const user = yield users.findOne({ email: email });
             if (user !== null) {
                 result = {
-                    _id: user._id,
+                    id: user._id.toString(),
                     email: user.email,
                     password: user.password,
                     username: user.username,
                     points: user.points,
+                    matchPoints: user.matchPoints,
                     team: user.team,
                     premium: user.premium,
                     level: user.level,
@@ -234,7 +250,6 @@ function getUserByMail(email) {
         }
     });
 }
-exports.getUserByMail = getUserByMail;
 /**
  * Get and return user by username (unique).
  * If user couldn't be found an error is thrown.
@@ -255,11 +270,12 @@ function getUserByUsername(username) {
             const user = yield users.findOne({ username: username });
             if (user !== null) {
                 result = {
-                    _id: user._id,
+                    id: user._id.toString(),
                     email: user.email,
                     password: user.password,
                     username: user.username,
                     points: user.points,
+                    matchPoints: user.matchPoints,
                     team: user.team,
                     premium: user.premium,
                     level: user.level,
@@ -283,7 +299,6 @@ function getUserByUsername(username) {
         }
     });
 }
-exports.getUserByUsername = getUserByUsername;
 /**
  * Delete user by id.
  * If user couldn't be found an error is thrown.
@@ -301,9 +316,9 @@ function deleteUserById(userId) {
             console.log("Connected successfully to server");
             const db = client.db("OceanCombat");
             const users = db.collection("Users");
-            const user = yield users.findOne({ _id: userId }); // Convert string into ObjectId
+            const user = yield users.findOne({ _id: new mongodb_1.ObjectId(userId) }); // Convert string into ObjectId
             if (user !== null) {
-                yield users.findOneAndDelete({ _id: userId });
+                yield users.findOneAndDelete({ _id: new mongodb_1.ObjectId(userId) });
                 result = true;
             }
         }
@@ -319,7 +334,6 @@ function deleteUserById(userId) {
         }
     });
 }
-exports.deleteUserById = deleteUserById;
 /**
  * Identify and delete user by email.
  * If user couldn't be found an error is thrown.
@@ -351,7 +365,6 @@ function deleteUserByMail(email) {
         }
     });
 }
-exports.deleteUserByMail = deleteUserByMail;
 /**
  * Identify user by username.
  * If user couldn't be found an error is thrown.
@@ -387,7 +400,6 @@ function deleteUserByUsername(username) {
         }
     });
 }
-exports.deleteUserByUsername = deleteUserByUsername;
 // Host public online match
 function hostOnlineMatch(onlineMatch) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -469,7 +481,6 @@ function hostOnlineMatch(onlineMatch) {
         }
     });
 }
-exports.hostOnlineMatch = hostOnlineMatch;
 // Join online match
 function joinOnlineMatch(roomId, username) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -535,7 +546,6 @@ function joinOnlineMatch(roomId, username) {
         }
     });
 }
-exports.joinOnlineMatch = joinOnlineMatch;
 // Update online match settings
 function updateOnlineMatch(onlineMatchResource, username) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -597,7 +607,6 @@ function updateOnlineMatch(onlineMatchResource, username) {
         }
     });
 }
-exports.updateOnlineMatch = updateOnlineMatch;
 // Delete online match
 function deleteOnlineMatch(roomId) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -633,7 +642,6 @@ function deleteOnlineMatch(roomId) {
         }
     });
 }
-exports.deleteOnlineMatch = deleteOnlineMatch;
 // Get public online matches
 function getPublicOnlinematches(gameMode) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -738,7 +746,6 @@ function getPublicOnlinematches(gameMode) {
         }
     });
 }
-exports.getPublicOnlinematches = getPublicOnlinematches;
 /**
  * Identify user by email and activate account.
  * If user couldn't be found an error is thrown.
@@ -756,15 +763,11 @@ function activateUserAccount(userId) {
             console.log("Started - activateUserAccount");
             const db = client.db("OceanCombat");
             const users = db.collection("Users");
-            const user = yield users.findOne({ _id: userId });
+            const user = yield users.findOne({ _id: new mongodb_1.ObjectId(userId) });
             if (user === null) {
                 throw new Error("No user found for provided identifier!");
             }
             else {
-                // Check if time to activate account has already expired
-                if (Date.now() - Resources_1.ExpirationTime.TwentyFour < user.verificationTimer) {
-                    throw new Error("Time to active account has already expired!");
-                }
                 // Set user account verified and save it to db
                 if (user.verified) {
                     result = true;
@@ -784,110 +787,72 @@ function activateUserAccount(userId) {
         }
     });
 }
-exports.activateUserAccount = activateUserAccount;
 // Returns the leaderboard based on the given parameters [This code part has been generated by AI]
-// export async function writeToLeaderboard(user: UserResource): Promise<void> {
+function writeToLeaderboard(user) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const client = new mongodb_1.MongoClient(MONGO_URL);
+        try {
+            // Create mongoDB native client & get user collection
+            yield client.connect();
+            console.log("Started - writeToLeaderboard");
+            const db = client.db("OceanCombat");
+            const leaderboard = db.collection("Leaderboard");
+            // Find user with highest points lower than current user's points
+            const filter = { points: { $lt: user.points } };
+            const sort = { points: -1 }; // Sort by points in descending order
+            const projection = { _id: 1 };
+            const options = { projection, sort }; // Options object
+            const userBefore = yield leaderboard.findOne(filter, options);
+            // Insert current user at the right position in the array
+            const update = {
+                $push: {
+                    users: {
+                        $each: [Object.assign(Object.assign({}, user), { _id: new mongodb_1.ObjectId(user.id) })],
+                        $sort: { points: -1 },
+                    },
+                },
+            };
+            if (userBefore) {
+                const users = yield leaderboard.find().toArray();
+                update.$push.users.$position = users.findIndex((u) => u._id.equals(userBefore._id)) + 1;
+            }
+            const result = yield leaderboard.updateOne({}, update);
+            console.log(`Updated ${result.matchedCount} document(s)`);
+        }
+        catch (error) {
+            throw error;
+        }
+        finally {
+            yield client.close();
+        }
+    });
+}
+// Returns the leaderboard based on the given parameters
+// export async function getLeaderboard(leaderboard?: Leaderboard, amount?: number): Promise<Leaderboard[]> {
 //     const client = new MongoClient(MONGO_URL);
+//     let leaderboardResult: Leaderboard[] = [];
 //     try {
 //         // Create mongoDB native client & get user collection
 //         await client.connect();
-//         console.log("Started - writeToLeaderboard");
+//         console.log("Started - activateUserAccount");
 //         const db = client.db("OceanCombat");
-//         const leaderboard = db.collection("Leaderboard");
-//         // Find user with highest points lower than current user's points
-//         const filter = { points: { $lt: user.points } };
-//         const sort: { [key: string]: SortDirection } = { points: -1 }; // Sort by points in descending order
-//         const projection = { _id: 1 };
-//         const options = { projection, sort }; // Options object
-//         const userBefore = await leaderboard.findOne(filter, options);
-//         // Insert current user at the right position in the array
-//         const update: any = {
-//             $push: {
-//                 users: {
-//                     $each: [{ ...user, _id: new ObjectId(user.id) }],
-//                     $sort: { points: -1 },
-//                 },
-//             },
-//         };
-//         if (userBefore) {
-//             const users = await leaderboard.find().toArray();
-//             update.$push.users.$position = users.findIndex((u: any) => u._id.equals(userBefore._id)) + 1;
+//         const users = db.collection("Leaderboard");
+//         const user = await users.find().toArray();
+//         if (leaderboard !== undefined) {
+//             if (leaderboard === Leaderboard.Global && amount === undefined) {
+//                 if (await users.countDocuments() > 0) {
+//                     leaderboardResult = 
+//                 }
+//             } else if (leaderboard === Leaderboard.Global) {
+//             }
 //         }
-//         const result: UpdateResult = await leaderboard.updateOne({}, update);
-//         console.log(`Updated ${result.matchedCount} document(s)`);
 //     } catch (error) {
 //         throw error;
 //     } finally {
 //         await client.close();
+//         return leaderboardResult;
 //     }
 // }
-// Sorts and rewrites the leaderboard to db
-function writeLeaderboardSimpel() {
-    return __awaiter(this, void 0, void 0, function* () {
-        const client = new mongodb_1.MongoClient(MONGO_URL);
-        try {
-            // Create mongoDB native client & get user collection
-            yield client.connect();
-            console.log("Started - writeLeaderboardSimpel");
-            const db = client.db("OceanCombat");
-            const users = db.collection("Users");
-            const leaderboard = db.collection("Leaderboard");
-            // Sort players in descending order of points (collection sort - might be faster for a huge amount of entries) [This code part has been generated by AI]
-            const cursor = users.find().sort({ points: -1 });
-            const sortedUserCollection = yield cursor.toArray();
-            // Transform users into leaderboard schema [This code part has been generated by AI]
-            const leaderboardEntries = sortedUserCollection.map((user, index) => ({
-                rank: index + 1,
-                username: user.username || "",
-                points: user.points || 0,
-                level: user.level || 0,
-            }));
-            // Write leaderboard entries to Leaderboard collection
-            yield leaderboard.deleteMany({});
-            yield leaderboard.insertMany(leaderboardEntries);
-        }
-        catch (error) {
-            throw error;
-        }
-        finally {
-            yield client.close();
-        }
-    });
-}
-exports.writeLeaderboardSimpel = writeLeaderboardSimpel;
-// Get the leaderboard  
-function getLeaderboard() {
-    return __awaiter(this, void 0, void 0, function* () {
-        const client = new mongodb_1.MongoClient(MONGO_URL);
-        let leaderboard = [];
-        try {
-            // Create mongoDB native client & get user collection
-            yield client.connect();
-            console.log("Started - writeLeaderboardSimpel");
-            const db = client.db("OceanCombat");
-            const leaderboardEntries = yield db.collection("Leaderboard").find().toArray();
-            if (!leaderboardEntries) {
-                throw new Error("Leaderboard is currently being revised!");
-            }
-            // Add all leaderboard objects to array
-            leaderboard = leaderboardEntries.map((entry) => ({
-                rank: entry.rank,
-                username: entry.username,
-                points: entry.points,
-                country: entry.country,
-                level: entry.level
-            }));
-            return leaderboard;
-        }
-        catch (error) {
-            throw error;
-        }
-        finally {
-            yield client.close();
-        }
-    });
-}
-exports.getLeaderboard = getLeaderboard;
 // Get all users
 function getAllUsers() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -902,10 +867,13 @@ function getAllUsers() {
             const userDocumentArray = yield usersCursor.toArray();
             userArray = userDocumentArray.map((userDoc) => {
                 const user = {
-                    _id: userDoc._id,
+                    id: userDoc._id.toString(),
                     email: userDoc.email,
+                    password: userDoc.password,
                     username: userDoc.username,
                     points: userDoc.points,
+                    matchPoints: userDoc.matchPoints,
+                    team: userDoc.team,
                     premium: userDoc.premium,
                     level: userDoc.level,
                     gameSound: userDoc.gameSound,
@@ -926,7 +894,6 @@ function getAllUsers() {
         return userArray;
     });
 }
-exports.getAllUsers = getAllUsers;
 // Delete all entries from collection
 function deleteEntriesFromCollection(collectionName) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -949,5 +916,4 @@ function deleteEntriesFromCollection(collectionName) {
         }
     });
 }
-exports.deleteEntriesFromCollection = deleteEntriesFromCollection;
 //# sourceMappingURL=DBService.js.map

@@ -18,7 +18,7 @@ const DBService_1 = require("../services/DBService");
 const express_validator_1 = require("express-validator");
 exports.verificationRouter = express_1.default.Router();
 // Validate email adress and activate user account
-exports.verificationRouter.get('/:id', (0, express_validator_1.param)("id").isMongoId(), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.verificationRouter.put('/:id', (0, express_validator_1.param)("id").isMongoId(), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const errors = (0, express_validator_1.validationResult)(req);
     if (!errors.isEmpty()) {
         return res.status(400).send({ errors: errors.array() });

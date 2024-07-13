@@ -119,7 +119,7 @@ exports.userRouter.put("/:id", (0, express_validator_1.param)("id").isMongoId(),
     }
     const id = req.params.id;
     const userData = (0, express_validator_1.matchedData)(req);
-    if (id !== userData._id) {
+    if (id !== userData.id) {
         return res.status(400).send({
             errors: [{ "location": "params", "path": "id" },
                 { "location": "body", "path": "id" }]
@@ -158,13 +158,9 @@ exports.userRouter.put("/:id", (0, express_validator_1.param)("id").isMongoId(),
 /**
  * Sends a single user.
  */
-exports.userRouter.get("/:id", (0, express_validator_1.param)("id").isMongoId(), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const errors = (0, express_validator_1.validationResult)(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-    }
-    const id = req.params.id;
+exports.userRouter.get("/:id", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        const id = req.params.id;
         const user = yield (0, UserService_1.getUser_UserService)(id);
         res.send(user);
     }

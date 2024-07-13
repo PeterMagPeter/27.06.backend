@@ -9,7 +9,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getAllUsers_UserService = exports.deleteUser_UserService = exports.getUser_UserService = exports.updateUser_UserService = exports.createUserAccount_UserService = void 0;
+exports.createUserAccount_UserService = createUserAccount_UserService;
+exports.updateUser_UserService = updateUser_UserService;
+exports.getUser_UserService = getUser_UserService;
+exports.deleteUser_UserService = deleteUser_UserService;
+exports.getAllUsers_UserService = getAllUsers_UserService;
 const UserModel_1 = require("../model/UserModel");
 const DBService_1 = require("./DBService");
 /**
@@ -17,7 +21,19 @@ const DBService_1 = require("./DBService");
  */
 function createUserAccount_UserService(userRes) {
     return __awaiter(this, void 0, void 0, function* () {
-        const user = yield UserModel_1.User.create(Object.assign({}, userRes));
+        const user = yield UserModel_1.User.create({
+            email: userRes.email,
+            password: userRes.password,
+            username: userRes.username,
+            points: userRes.points,
+            premium: userRes.premium,
+            level: userRes.level,
+            gameSound: userRes.gameSound,
+            music: userRes.music,
+            higherLvlChallenge: userRes.higherLvlChallenge,
+            verified: userRes.verified,
+            verificationTimer: userRes.verificationTimer
+        });
         // Write user into db
         try {
             return yield (0, DBService_1.registerUser)(user);
@@ -27,14 +43,13 @@ function createUserAccount_UserService(userRes) {
         }
     });
 }
-exports.createUserAccount_UserService = createUserAccount_UserService;
 /**
  * Identify and update user by ID with the given UserResource
  * If no id is provided or user couldn't be found, an error is thrown.
  */
 function updateUser_UserService(userRes) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (!userRes._id) {
+        if (!userRes.id) {
             throw new Error("Please provide an user to update!");
         }
         try {
@@ -45,7 +60,6 @@ function updateUser_UserService(userRes) {
         }
     });
 }
-exports.updateUser_UserService = updateUser_UserService;
 /**
  * Get and return user by mail.
  * If user couldn't be found an error is thrown.
@@ -63,7 +77,6 @@ function getUser_UserService(userId) {
         }
     });
 }
-exports.getUser_UserService = getUser_UserService;
 /**
  * Identify user by mail.
  * If user couldn't be found an error is thrown.
@@ -84,7 +97,6 @@ function deleteUser_UserService(userId) {
         }
     });
 }
-exports.deleteUser_UserService = deleteUser_UserService;
 /**
  * Returns all users stored in DB.
  * Omits privacy related data, i.e. email, id and member status
@@ -92,22 +104,15 @@ exports.deleteUser_UserService = deleteUser_UserService;
 function getAllUsers_UserService() {
     return __awaiter(this, void 0, void 0, function* () {
         const users = yield (0, DBService_1.getAllUsers)();
-        let userResources = [];
-        userResources = users.map(user => ({
-            _id: user._id,
-            email: user.email,
+        const userResources = users.map(user => ({
             username: user.username,
+            email: user.email,
             points: user.points,
-            premium: user.premium,
             level: user.level,
-            gameSound: user.gameSound,
-            music: user.music,
-            higherLvlChallenge: user.higherLvlChallenge,
             verified: user.verified,
             verificationTimer: user.verificationTimer
         }));
         return userResources;
     });
 }
-exports.getAllUsers_UserService = getAllUsers_UserService;
 //# sourceMappingURL=UserService.js.map
