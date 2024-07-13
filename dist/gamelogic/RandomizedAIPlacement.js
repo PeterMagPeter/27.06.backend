@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = GameField;
 function GameField() {
     function generateRandomNumber(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -124,5 +125,4 @@ function GameField() {
         console.log(board);
     }
 }
-exports.default = GameField;
 //# sourceMappingURL=RandomizedAIPlacement.js.map

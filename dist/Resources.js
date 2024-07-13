@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.calculateLevel = exports.ExpirationTime = exports.Country = exports.Leaderboard = exports.Gamestatus = exports.loserPoints = exports.winnerPoints = exports.teamLoserPoints = exports.teamWinnerPoints = exports.shipDestroyedPoints = exports.hitPoints = exports.Team2Name = exports.Team1Name = void 0;
+exports.ExpirationTime = exports.Country = exports.Leaderboard = exports.Gamestatus = exports.loserPoints = exports.winnerPoints = exports.teamLoserPoints = exports.teamWinnerPoints = exports.shipDestroyedPoints = exports.hitPoints = exports.Team2Name = exports.Team1Name = void 0;
+exports.calculateLevel = calculateLevel;
 exports.Team1Name = "Wasser-Wrestler";
 exports.Team2Name = "See-Soldaten";
 exports.hitPoints = 5;
@@ -48,7 +49,6 @@ function calculateLevel(points) {
     // If user has reached lvl 100, the array length is returned
     return levelThresholds.length;
 }
-exports.calculateLevel = calculateLevel;
 // equivalent to
 //  0,         // Level 1
 //  100,       // Level 2
