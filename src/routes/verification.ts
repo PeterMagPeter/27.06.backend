@@ -5,7 +5,7 @@ import { param, validationResult } from "express-validator";
 export const verificationRouter = express.Router();
 
 // Validate email adress and activate user account
-verificationRouter.get('/:id', 
+verificationRouter.put('/:id', 
   param("id").isMongoId(),
 
   async (req, res) => {  

@@ -1,13 +1,24 @@
 import { UserResource } from "../Resources";
 import { User } from "../model/UserModel";
 import { deleteUserById, getAllUsers, getUserById, registerUser, updateUserData } from "./DBService";
-import { ObjectId } from "mongodb";
 
 /**
  * Create user with data from UserResource and write it into db
  */
 export async function createUserAccount_UserService(userRes: UserResource) {
-    const user = await User.create({ ...userRes });
+    const user = await User.create({
+        email: userRes.email,
+        password: userRes.password,
+        username: userRes.username,
+        points: userRes.points,
+        premium: userRes.premium,
+        level: userRes.level,
+        gameSound: userRes.gameSound,
+        music: userRes.music,
+        higherLvlChallenge: userRes.higherLvlChallenge,
+        verified: userRes.verified,
+        verificationTimer: userRes.verificationTimer
+    });
 
     // Write user into db
     try {
@@ -22,7 +33,7 @@ export async function createUserAccount_UserService(userRes: UserResource) {
  * If no id is provided or user couldn't be found, an error is thrown.
  */
 export async function updateUser_UserService(userRes: UserResource) {
-    if (!userRes._id) {
+    if (!userRes.id) {
         throw new Error("Please provide an user to update!");
     }
     try {
@@ -36,7 +47,7 @@ export async function updateUser_UserService(userRes: UserResource) {
  * Get and return user by mail.
  * If user couldn't be found an error is thrown.
  */
-export async function getUser_UserService(userId: ObjectId) {
+export async function getUser_UserService(userId: string) {
     if (!userId) {
         throw new Error("Please provide an email to search for!");
     }
@@ -51,7 +62,7 @@ export async function getUser_UserService(userId: ObjectId) {
  * Identify user by mail.
  * If user couldn't be found an error is thrown.
  */
-export async function deleteUser_UserService(userId: ObjectId) {
+export async function deleteUser_UserService(userId: string) {
     if (!userId) {
         throw new Error("Please provide an email to search for!");
     }
@@ -71,18 +82,11 @@ export async function deleteUser_UserService(userId: ObjectId) {
  */
 export async function getAllUsers_UserService(): Promise<UserResource[]> {
     const users = await getAllUsers();
-    let userResources: UserResource[] = [];
-
-    userResources = users.map(user => ({
-        _id: user._id,
-        email: user.email,
+    const userResources = users.map(user => ({
         username: user.username,
+        email: user.email,
         points: user.points,
-        premium: user.premium,
         level: user.level,
-        gameSound: user.gameSound,
-        music: user.music,
-        higherLvlChallenge: user.higherLvlChallenge,
         verified: user.verified,
         verificationTimer: user.verificationTimer
     }));

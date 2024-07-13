@@ -1,6 +1,5 @@
 import { configDotenv } from 'dotenv';
 configDotenv()
-import { ObjectId } from 'mongodb';
 import { createTransport } from 'nodemailer';
 
 // Config nodemailer (backup)
@@ -23,7 +22,7 @@ const transporter = createTransport({
   }
 });
 
-export async function sendVerificationEmail(userId: ObjectId, email: string): Promise<boolean> {
+export async function sendVerificationEmail(userId: string, email: string): Promise<boolean> {
   const currentUrl = "http://18.199.96.57:3001/api/verification/";
   const mailOptions = {
     from: process.env.MAIL_USER,

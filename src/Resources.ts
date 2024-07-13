@@ -1,20 +1,19 @@
-import { ObjectId } from "mongodb";
-
 export type UserResource = {
-    _id?: ObjectId;         // Is automatically created my mongoose in mongodb format after object creation
-    email: string
-    password?: string       // Set to optional, to prevent password output ( e.g. getAllUsers() )
-    username: string
-    points: number
+    id?: string
+    email?: string
+    password?: string
+    username?: string
+    points?: number
+    matchPoints?: number
     team?: number
     // picture?: string
-    premium: boolean
-    level: number
-    gameSound: number
-    music: number
-    higherLvlChallenge: boolean
-    verified: boolean
-    verificationTimer: Date
+    premium?: boolean
+    level?: number
+    gameSound?: number
+    music?: number
+    higherLvlChallenge?: boolean
+    verified?: boolean
+    verificationTimer?: Date
 }
 
 export type GuestResource = {
@@ -61,21 +60,15 @@ export enum Leaderboard {
     Local = "local"
 }
 
-export type LeaderboardRessource = {
+export type leaderboardSchema = {
     rank: number;
     username: string;
+    country: Country;
     points: number;
-    country?: Country;
-    level: number;
 }
 
 export enum Country {
     DE = "DE",
-}
-
-// Only used to set a expiration time
-export enum ExpirationTime {
-    TwentyFour = 1000 * 60 * 60 * 24,
 }
 
 // Point-Lvl-System

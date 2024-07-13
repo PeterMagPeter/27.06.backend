@@ -137,7 +137,7 @@ userRouter.put("/:id",
     }
     const id = req.params!.id;
     const userData = matchedData(req) as UserResource;
-    if (id !== userData._id) {
+    if (id !== userData.id) {
       return res.status(400).send({
         errors: [{ "location": "params", "path": "id" },
         { "location": "body", "path": "id" }]
@@ -177,15 +177,10 @@ userRouter.put("/:id",
 /** 
  * Sends a single user.  
  */
-userRouter.get("/:id",
-  param("id").isMongoId(),
+userRouter.get("/:id", 
   async (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-    const id = req.params!.id;
   try {
+    const id = req.params.id;
     const user = await getUser_UserService(id);
     res.send(user);
   } catch (error) {

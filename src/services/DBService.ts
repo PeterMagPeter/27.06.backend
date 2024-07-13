@@ -1,8 +1,8 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import { MongoClient, ObjectId } from 'mongodb';
-import { Gamestatus, OnlineMatchResource, UserResource, calculateLevel, ExpirationTime, LeaderboardRessource } from "../Resources";
+import { MongoClient, ObjectId, UpdateResult, SortDirection } from 'mongodb';
+import { Gamestatus, OnlineMatchResource, UserResource, calculateLevel } from "../Resources";
 import { sendVerificationEmail } from "./MailService";
 
 // Set up MongoDB URL
@@ -12,8 +12,8 @@ const MONGO_URL = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_P
  * Create user with data from UserResource and return created object.
  */
 export async function registerUser(userRes: UserResource): Promise<boolean> {
-    const client = new MongoClient(MONGO_URL);
-    let result: boolean = false;
+  const client = new MongoClient(MONGO_URL);
+  let result: boolean = false;
 
     try {
         // Create mongoDB native client
@@ -31,9 +31,10 @@ export async function registerUser(userRes: UserResource): Promise<boolean> {
         }
 
         // Write object to db and send a verification mail
-        if (userRes._id && userRes.email && userRes.password) {
-            await client.db("OceanCombat").collection("Users").insertOne(userRes);
-            await sendVerificationEmail(userRes._id, userRes.email);
+        const user = { ...userRes };
+        await client.db("OceanCombat").collection("Users").insertOne(user);
+        if (user.id && user.email) {
+            await sendVerificationEmail(user.id, user.email);
             result = true;
         }
     } catch (error) {
@@ -58,7 +59,7 @@ export async function updateUserData(userRes: UserResource): Promise<boolean> {
         console.log("Connected successfully to server");
         const db = client.db("OceanCombat");
         const users = db.collection("Users");
-        const user = await users.findOne({ _id: userRes._id });
+        const user = await users.findOne({ _id: new ObjectId(userRes.id) });
         let changedMail: boolean = false;
 
         if (user !== null) {
@@ -99,7 +100,7 @@ export async function updateUserData(userRes: UserResource): Promise<boolean> {
             if (changedMail) {
                 user.verificationTimer = new Date(Date.now() + 1000 * 60 * 60 * 24);
                 user.verified = false;
-                await sendVerificationEmail(user._id, user.email);
+                await sendVerificationEmail(user._id.toString(), user.email);
             }
 
             // Update user settings with new data
@@ -130,7 +131,7 @@ export async function updateUserData(userRes: UserResource): Promise<boolean> {
  * Get and return user by email (unique).
  * If user couldn't be found an error is thrown.
  */
-export async function getUserById(userId: ObjectId): Promise<UserResource | null> {
+export async function getUserById(userId: string): Promise<UserResource | null> {
     const client = new MongoClient(MONGO_URL);
     let result: UserResource | null = null;
 
@@ -143,14 +144,15 @@ export async function getUserById(userId: ObjectId): Promise<UserResource | null
         console.log("Connected successfully to server");
         const db = client.db("OceanCombat");
         const users = db.collection("Users");
-        const user = await users.findOne({ _id: userId });   
+        const user = await users.findOne({ _id: new ObjectId(userId) });    // Convert string into ObjectId
         if (user !== null) {
             result = {
-                _id: userId,
+                id: user._id.toString(),
                 email: user.email,
                 password: user.password,
                 username: user.username,
                 points: user.points,
+                matchPoints: user.matchPoints,
                 team: user.team,
                 premium: user.premium,
                 level: user.level,
@@ -189,11 +191,12 @@ export async function getUserByMail(email: string): Promise<UserResource | null>
         const user = await users.findOne({ email: email });
         if (user !== null) {
             result = {
-                _id: user._id,
+                id: user._id.toString(),
                 email: user.email,
                 password: user.password,
                 username: user.username,
                 points: user.points,
+                matchPoints: user.matchPoints,
                 team: user.team,
                 premium: user.premium,
                 level: user.level,
@@ -235,11 +238,12 @@ export async function getUserByUsername(username: string): Promise<UserResource 
         const user = await users.findOne({ username: username });
         if (user !== null) {
             result = {
-                _id: user._id,
+                id: user._id.toString(),
                 email: user.email,
                 password: user.password,
                 username: user.username,
                 points: user.points,
+                matchPoints: user.matchPoints,
                 team: user.team,
                 premium: user.premium,
                 level: user.level,
@@ -265,7 +269,7 @@ export async function getUserByUsername(username: string): Promise<UserResource 
  * Delete user by id.
  * If user couldn't be found an error is thrown.
  */
-export async function deleteUserById(userId: ObjectId): Promise<boolean> {
+export async function deleteUserById(userId: string): Promise<boolean> {
     const client = new MongoClient(MONGO_URL);
     let result: boolean = false;
 
@@ -278,9 +282,9 @@ export async function deleteUserById(userId: ObjectId): Promise<boolean> {
         console.log("Connected successfully to server");
         const db = client.db("OceanCombat");
         const users = db.collection("Users");
-        const user = await users.findOne({ _id: userId });    // Convert string into ObjectId
+        const user = await users.findOne({ _id: new ObjectId(userId) });    // Convert string into ObjectId
         if (user !== null) {
-            await users.findOneAndDelete({ _id: userId });
+            await users.findOneAndDelete({ _id: new ObjectId(userId) });
             result = true;
         }
     } catch (error) {
@@ -299,8 +303,8 @@ export async function deleteUserById(userId: ObjectId): Promise<boolean> {
  * If user couldn't be found an error is thrown.
  */
 export async function deleteUserByMail(email: string): Promise<boolean> {
-    const client = new MongoClient(MONGO_URL);
-    let result: boolean = false;
+  const client = new MongoClient(MONGO_URL);
+  let result: boolean = false;
 
     try {
         // Create mongoDB native client & get user collection
@@ -328,8 +332,8 @@ export async function deleteUserByMail(email: string): Promise<boolean> {
  * If user couldn't be found an error is thrown.
  */
 export async function deleteUserByUsername(username: string): Promise<boolean> {
-    const client = new MongoClient(MONGO_URL);
-    let result: boolean = false;
+  const client = new MongoClient(MONGO_URL);
+  let result: boolean = false;
 
     try {
         if (!username) {
@@ -357,9 +361,9 @@ export async function deleteUserByUsername(username: string): Promise<boolean> {
 
 // Host public online match
 export async function hostOnlineMatch(
-    onlineMatch: OnlineMatchResource
+  onlineMatch: OnlineMatchResource
 ): Promise<boolean> {
-    const client = new MongoClient(MONGO_URL);
+  const client = new MongoClient(MONGO_URL);
 
     try {
         // Create mongoDB native client
@@ -489,7 +493,7 @@ export async function joinOnlineMatch(roomId: string, username: string): Promise
         const result = await collection.findOneAndUpdate({ roomId: roomId }, { $set: room }, { returnDocument: "after" });
 
         // Return OnlineMatchResource or null [Chris's fix for frontend]
-        if (result) {
+        if (result ) {
             const onlineMatchResource: OnlineMatchResource = {
                 roomId: result.roomId,
                 privateMatch: result.privateMatch,
@@ -597,7 +601,7 @@ export async function deleteOnlineMatch(roomId: string): Promise<boolean> {
         const publicMatch = await client.db("OceanCombat").collection("PublicOnlinematches").findOne({ roomId: roomId });
 
         // Determine collection where match is stored to delete
-        if (privateMatch === null && publicMatch === null) {
+        if (privateMatch === null && publicMatch=== null) {
             throw new Error("No match found to delete!");
         } else {
             if (privateMatch !== null) {
@@ -719,7 +723,7 @@ export async function getPublicOnlinematches(gameMode?: string): Promise<OnlineM
  * Identify user by email and activate account.
  * If user couldn't be found an error is thrown.
  */
-export async function activateUserAccount(userId: ObjectId): Promise<boolean> {
+export async function activateUserAccount(userId: string): Promise<boolean> {
     const client = new MongoClient(MONGO_URL);
     let result: boolean = false;
 
@@ -732,14 +736,10 @@ export async function activateUserAccount(userId: ObjectId): Promise<boolean> {
         console.log("Started - activateUserAccount");
         const db = client.db("OceanCombat");
         const users = db.collection("Users");
-        const user = await users.findOne({ _id: userId });
+        const user = await users.findOne({ _id: new ObjectId(userId) });
         if (user === null) {
             throw new Error("No user found for provided identifier!");
         } else {
-            // Check if time to activate account has already expired
-            if(Date.now() - ExpirationTime.TwentyFour < user.verificationTimer){
-                throw new Error("Time to active account has already expired!");
-            } 
             // Set user account verified and save it to db
             if (user.verified) {
                 result = true;
@@ -757,112 +757,75 @@ export async function activateUserAccount(userId: ObjectId): Promise<boolean> {
 }
 
 // Returns the leaderboard based on the given parameters [This code part has been generated by AI]
-// export async function writeToLeaderboard(user: UserResource): Promise<void> {
+export async function writeToLeaderboard(user: UserResource): Promise<void> {
+    const client = new MongoClient(MONGO_URL);
+
+    try {
+        // Create mongoDB native client & get user collection
+        await client.connect();
+        console.log("Started - writeToLeaderboard");
+        const db = client.db("OceanCombat");
+        const leaderboard = db.collection("Leaderboard");
+
+        // Find user with highest points lower than current user's points
+        const filter = { points: { $lt: user.points } };
+        const sort: { [key: string]: SortDirection } = { points: -1 }; // Sort by points in descending order
+        const projection = { _id: 1 };
+        const options = { projection, sort }; // Options object
+
+        const userBefore = await leaderboard.findOne(filter, options);
+
+        // Insert current user at the right position in the array
+        const update: any = {
+            $push: {
+                users: {
+                    $each: [{ ...user, _id: new ObjectId(user.id) }],
+                    $sort: { points: -1 },
+                },
+            },
+        };
+        if (userBefore) {
+            const users = await leaderboard.find().toArray();
+            update.$push.users.$position = users.findIndex((u: any) => u._id.equals(userBefore._id)) + 1;
+        }
+        const result: UpdateResult = await leaderboard.updateOne({}, update);
+        console.log(`Updated ${result.matchedCount} document(s)`);
+    } catch (error) {
+        throw error;
+    } finally {
+        await client.close();
+    }
+}
+
+// Returns the leaderboard based on the given parameters
+// export async function getLeaderboard(leaderboard?: Leaderboard, amount?: number): Promise<Leaderboard[]> {
 //     const client = new MongoClient(MONGO_URL);
+//     let leaderboardResult: Leaderboard[] = [];
 
 //     try {
 //         // Create mongoDB native client & get user collection
 //         await client.connect();
-//         console.log("Started - writeToLeaderboard");
+//         console.log("Started - activateUserAccount");
 //         const db = client.db("OceanCombat");
-//         const leaderboard = db.collection("Leaderboard");
+//         const users = db.collection("Leaderboard");
+//         const user = await users.find().toArray();
 
-//         // Find user with highest points lower than current user's points
-//         const filter = { points: { $lt: user.points } };
-//         const sort: { [key: string]: SortDirection } = { points: -1 }; // Sort by points in descending order
-//         const projection = { _id: 1 };
-//         const options = { projection, sort }; // Options object
+//         if (leaderboard !== undefined) {
+//             if (leaderboard === Leaderboard.Global && amount === undefined) {
+//                 if (await users.countDocuments() > 0) {
+//                     leaderboardResult = 
+//                 }
+//             } else if (leaderboard === Leaderboard.Global) {
 
-//         const userBefore = await leaderboard.findOne(filter, options);
-
-//         // Insert current user at the right position in the array
-//         const update: any = {
-//             $push: {
-//                 users: {
-//                     $each: [{ ...user, _id: new ObjectId(user.id) }],
-//                     $sort: { points: -1 },
-//                 },
-//             },
-//         };
-//         if (userBefore) {
-//             const users = await leaderboard.find().toArray();
-//             update.$push.users.$position = users.findIndex((u: any) => u._id.equals(userBefore._id)) + 1;
+//             }
 //         }
-//         const result: UpdateResult = await leaderboard.updateOne({}, update);
-//         console.log(`Updated ${result.matchedCount} document(s)`);
 //     } catch (error) {
 //         throw error;
 //     } finally {
 //         await client.close();
+//         return leaderboardResult;
 //     }
 // }
-
-// Sorts and rewrites the leaderboard to db
-export async function writeLeaderboardSimpel(): Promise<void> {
-    const client = new MongoClient(MONGO_URL);
-
-    try {
-        // Create mongoDB native client & get user collection
-        await client.connect();
-        console.log("Started - writeLeaderboardSimpel");
-        const db = client.db("OceanCombat");
-        const users = db.collection("Users");
-        const leaderboard = db.collection("Leaderboard");
-
-        // Sort players in descending order of points (collection sort - might be faster for a huge amount of entries) [This code part has been generated by AI]
-        const cursor = users.find().sort({ points: -1 });
-        const sortedUserCollection = await cursor.toArray();
-
-        // Transform users into leaderboard schema [This code part has been generated by AI]
-        const leaderboardEntries = sortedUserCollection.map((user, index) => ({
-            rank: index + 1,
-            username: user.username || "",
-            points: user.points || 0,
-            level: user.level || 0,
-        }));
-
-        // Write leaderboard entries to Leaderboard collection
-        await leaderboard.deleteMany({}); 
-        await leaderboard.insertMany(leaderboardEntries);
-    } catch (error) {
-        throw error;
-    } finally {
-        await client.close();
-    }
-}
-
-// Get the leaderboard  
-export async function getLeaderboard(): Promise<LeaderboardRessource[]> {
-    const client = new MongoClient(MONGO_URL);
-    let leaderboard: LeaderboardRessource[] = [];
-
-    try {
-        // Create mongoDB native client & get user collection
-        await client.connect();
-        console.log("Started - writeLeaderboardSimpel");
-        const db = client.db("OceanCombat");
-        const leaderboardEntries = await db.collection("Leaderboard").find().toArray();
-
-        if(!leaderboardEntries){
-            throw new Error("Leaderboard is currently being revised!");
-        }
-
-        // Add all leaderboard objects to array
-        leaderboard = leaderboardEntries.map((entry) => ({
-            rank: entry.rank,
-            username: entry.username,
-            points: entry.points,
-            country: entry.country,
-            level: entry.level
-        })) as LeaderboardRessource[];
-
-        return leaderboard;
-    } catch (error) {
-        throw error;
-    } finally {
-        await client.close();
-    }
-}
 
 // Get all users
 export async function getAllUsers(): Promise<UserResource[]> {
@@ -878,10 +841,13 @@ export async function getAllUsers(): Promise<UserResource[]> {
         const userDocumentArray = await usersCursor.toArray();
         userArray = userDocumentArray.map((userDoc) => {
             const user: UserResource = {
-                _id: userDoc._id,
+                id: userDoc._id.toString(),
                 email: userDoc.email,
+                password: userDoc.password,
                 username: userDoc.username,
                 points: userDoc.points,
+                matchPoints: userDoc.matchPoints,
+                team: userDoc.team,
                 premium: userDoc.premium,
                 level: userDoc.level,
                 gameSound: userDoc.gameSound,
