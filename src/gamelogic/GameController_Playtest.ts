@@ -111,6 +111,60 @@ export class AiGameController {
     }
   }
 
+  // detonate mines on each board
+  detonateMines(username: string) {
+    let board = this.playerBoard.boardOwner == username? this.playerBoard : this.aiBoard
+    if(board)
+      for (let mine of board.mines) {
+          this.shoot(board.boardOwner, mine);
+        }
+  }
+
+  // detonate torpedo
+  detonateTorpedo(username: string, position: Position, horizontal: boolean) {
+    let board = this.playerBoard.boardOwner == username? this.playerBoard : this.aiBoard
+
+    if (horizontal) {
+      if (board?.cols) {
+        for (let i = 0; i < board?.cols; i++) {
+          let hitPosition = { x: position.x, y: i };
+          let hitResult = board.checkHit(hitPosition, username);
+          if (this.isMiniHit(hitResult)) {
+            // hit or miss
+            if (hitResult.hit === true) {
+              this.shoot(board.boardOwner, hitPosition);
+            }
+          }
+        }
+      }
+    } else {
+      if (board?.rows) {
+        for (let i = 0; i < board?.rows; i++) {
+          let hitPosition = { x: i, y: position.y };
+          let hitResult = board.checkHit(hitPosition, username);
+          if (this.isMiniHit(hitResult)) {
+            // hit or miss
+            if (hitResult.hit === true) {
+              this.shoot(board.boardOwner, hitPosition);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // position needs to be min 1 for x and y
+  detonateDrone(position: Position): Position[] {
+    let uncoveredPositions = [
+      { x: position.x, y: position.y },
+      { x: position.x, y: position.y - 1 },
+      { x: position.x, y: position.y + 1 },
+      { x: position.x - 1, y: position.y },
+      { x: position.x + 1, y: position.y },
+    ];
+    return uncoveredPositions;
+  }
+
   getCurrentPlayer() {
     return this.playerWhosTurnItIs;
   }
@@ -141,7 +195,7 @@ export class AiGameController {
   hitEvent(body: HitResult) {
     logger.debug(JSON.stringify(body) + " hitevent body");
     this.socket.emit("hitEvent", body);
-    this.switchPlayers(body.hit, body.switchTo);
+    this.switchPlayers(body.hit, body.switchTo!);
   }
 
   shipDestroyed(body: ShipType, switchTo: string) {
@@ -150,7 +204,7 @@ export class AiGameController {
     this.switchPlayers(true, switchTo);
   }
   startGame() {
-    this.socket.emit("gameStart", this.playerWhosTurnItIs);
+    this.socket.emit("gameStart", this.playerWhosTurnItIs, this.playerBoard.shipArray);
     logger.debug(this.playerWhosTurnItIs);
     // this.switchPlayers(true, switchTo);
   }

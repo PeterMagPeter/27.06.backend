@@ -1,4 +1,4 @@
-import { GuestResource } from "src/Resources";
+import { GuestResource } from "../Resources";
 import { Guest } from "../model/GuestModel";
 
 /**

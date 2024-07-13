@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
-import { Gamestatus } from 'src/Resources';
+import { Gamestatus } from '../Resources';
 
 export interface IOnlineMatchModel {
     roomId: string;
