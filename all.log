@@ -23,3 +23,8 @@ info: Connect to mongod at mongodb+srv://TestUser:ThisIsPassword@oceancombat.3sh
 info: Connection successfully etablished!
 info: Pinged your deployment. You successfully connected to MongoDB!
 info: Server Started PORT ==> 
+info: Connect to mongod at mongodb+srv://TestUser:ThisIsPassword@oceancombat.3shvrzt.mongodb.net/?retryWrites=true&w=majority&appName=OceanCombat
+info: Connect to mongod at mongodb+srv://TestUser:ThisIsPassword@oceancombat.3shvrzt.mongodb.net/?retryWrites=true&w=majority&appName=OceanCombat
+info: Connection successfully etablished!
+info: Pinged your deployment. You successfully connected to MongoDB!
+info: Server Started PORT ==> 
