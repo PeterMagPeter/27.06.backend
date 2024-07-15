@@ -12,7 +12,7 @@ import cors, { CorsOptions } from 'cors';
 export function configureCORS(app: express.Express) {
 
     const corsOptions: CorsOptions = {
-        origin: process.env.CORS_ORIGIN ?? "http://localhost:3000",
+        origin: process.env.CORS_ORIGIN ?? "https://localhost:3000",
         methods: "GET,PUT,POST,DELETE",
         allowedHeaders: "Origin,Content-Type",
         optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
