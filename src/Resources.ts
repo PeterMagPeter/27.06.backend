@@ -80,7 +80,7 @@ export enum Leaderboard {
     Local = "local"
 }
 
-export type LeaderboardRessource = {
+export type LeaderboardResource = {
     rank: number;
     username: string;
     points: number;

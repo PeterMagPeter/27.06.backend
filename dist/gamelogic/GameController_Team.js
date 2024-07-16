@@ -258,7 +258,7 @@ class TeamGameController {
         // returns the board that gets shot at
         const board = this.playerBoards.find((board) => board.boardOwner != teamName);
         // console.log("detonateMines ", username, board);
-        if (board) {
+        if (board && board.mines) {
             let count = 0;
             for (let mine of board.mines) {
                 // console.log("detonateMines ", mine);
@@ -288,12 +288,12 @@ class TeamGameController {
             console.log(" - detonateTorpedo ", hitPosition);
             let hitResult = board.teamCheckHit(hitPosition);
             console.log(" - detonateTorped ", hitResult);
-            this.shoot(username, hitPosition, true);
+            setTimeout(() => {
+                this.shoot(username, hitPosition, true);
+            }, i * 500);
             console.log(" - detonateTorped nach shoot");
             if (hitResult === "Hit") {
                 // hit or miss
-                // setTimeout(() => {
-                // }, 1000 + i * 500);
                 console.log(" return bitte");
                 return;
             }

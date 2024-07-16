@@ -1,6 +1,7 @@
 import express from "express";
 import { body, matchedData, validationResult } from "express-validator";
 import { verifyJWT, verifyPasswordAndCreateJWT } from "../services/JWTService";
+import { UserResource } from "src/Resources";
 
 export const loginRouter = express.Router();
 
@@ -81,9 +82,10 @@ loginRouter.post("/",
         }
         // Extract email from req as additional factor, to make cookie name unique
         const email: string = req.body.email;
+        const password: string = req.body.password;
         try {
             const data = matchedData(req);
-            const jwtString = await verifyPasswordAndCreateJWT(data.email, data.password);
+            const jwtString = await verifyPasswordAndCreateJWT(email, password);
             const login = verifyJWT(jwtString);
             // Exp. needs to be multiplied by 1000 to convert secs ==> millisec [Needed by JavaScript date object]
             const exp = new Date(login.exp * 1000);

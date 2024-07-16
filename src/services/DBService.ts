@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 dotenv.config();
 import bcrypt from "bcryptjs"
 import { MongoClient, ObjectId } from 'mongodb';
-import { Gamestatus, OnlineMatchResource, UserResource, calculateLevel, ExpirationTime, LeaderboardRessource, RegisterResource, Country } from "../Resources";
+import { Gamestatus, OnlineMatchResource, UserResource, calculateLevel, ExpirationTime, RegisterResource, Country, LeaderboardResource } from "../Resources";
 import { sendVerificationEmail } from "./MailService";
 import { hashPassword } from "./UserService";
 
@@ -304,7 +304,7 @@ export async function getUserByUsername(username: string): Promise<UserResource 
     } finally {
         await client.close();
         if (result === null) {
-            throw new Error("Couldn't find user by username!");
+            // throw new Error("Couldn't find user by username!");
         }
         return result;
     }
@@ -738,7 +738,7 @@ export async function getPublicOnlinematches(gameMode?: string): Promise<OnlineM
         } else {
             const matches = await db.collection("PublicOnlinematches").find().toArray();
             if (matches.length === 0) {
-                throw new Error("No matches online!");
+                // throw new Error("No matches online!");
             }
             onlineMatches = matches.map((match: any) => ({
                 roomId: match.roomId,
@@ -841,8 +841,13 @@ export async function writeLeaderboard(): Promise<void> {
             level: user.level || 0,
         }));
 
+        // Delete Leaderboard collection
+        await leaderboard.drop();
+
+        // Create Leaderboard collection 
+        await db.createCollection("Leaderboard");
+
         // Write leaderboard entries to Leaderboard collection
-        await leaderboard.deleteMany({});
         await leaderboard.insertMany(leaderboardEntries);
     } catch (error) {
         throw error;
@@ -851,39 +856,38 @@ export async function writeLeaderboard(): Promise<void> {
     }
 }
 
-// Get the leaderboard  
-export async function getLeaderboard(): Promise<LeaderboardRessource[]> {
+// Get current leaderboard
+export async function getLeaderboard(): Promise<LeaderboardResource[] | null> {
     const client = new MongoClient(MONGO_URL);
-    let leaderboard: LeaderboardRessource[] = [];
+    let leaderboard: LeaderboardResource[] = [];
 
     try {
-        // Create mongoDB native client & get user collection
+        // Create mongoDB native client & get leaderboard collection
         await client.connect();
-        console.log("Started - writeLeaderboardSimpel");
+        console.log("Started - getLeaderboard");
         const db = client.db("OceanCombat");
-        const leaderboardEntries = await db.collection("Leaderboard").find().toArray();
+        const leaderboardCollection = db.collection("Leaderboard");
 
-        if (!leaderboardEntries) {
-            throw new Error("Leaderboard is currently being revised!");
+        // Check if Leaderboard collection is not empty
+        const count = await leaderboardCollection.countDocuments();
+        if (count > 0) {
+            // Get leaderboard from the collection
+            const leaderboardDocs = await leaderboardCollection.find().toArray();
+            leaderboard = leaderboardDocs.map((doc) => {
+                const { _id, ...leaderboardEntry } = doc;
+                return leaderboardEntry as LeaderboardResource;
+            });
+            return leaderboard;
+        } else {
+            return null;
         }
-
-        // Add all leaderboard objects to array
-        leaderboard = leaderboardEntries.map((entry) => ({
-            rank: entry.rank,
-            username: entry.username,
-            points: entry.points,
-            country: entry.country,
-            level: entry.level
-        })) as LeaderboardRessource[];
-
-        return leaderboard;
     } catch (error) {
         throw error;
     } finally {
         await client.close();
     }
+    return leaderboard;
 }
-
 // Get all users
 export async function getAllUsers(): Promise<UserResource[]> {
     const client = new MongoClient(MONGO_URL);

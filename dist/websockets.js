@@ -28,11 +28,24 @@ function startWebSocketConnection(server) {
     let playerBoards = {};
     io.on("connection", (socket) => {
         console.log("New connection:", socket.id);
-        socket.on("sendGiveMeMySkin", (username) => __awaiter(this, void 0, void 0, function* () {
+        socket.on("sendGetUser", (username) => __awaiter(this, void 0, void 0, function* () {
             let user = yield (0, DBService_1.getUserByUsername)(username);
             if (user) {
-                socket.emit("giveSkin", user.skin);
+                socket.emit("getUser", user);
             }
+        }));
+        socket.on("sendGetLeaderboard", () => __awaiter(this, void 0, void 0, function* () {
+            yield (0, DBService_1.writeLeaderboard)()
+                .then(() => __awaiter(this, void 0, void 0, function* () {
+                let leaderboard = yield (0, DBService_1.getLeaderboard)();
+                if (leaderboard) {
+                    console.log(leaderboard);
+                    socket.emit("getLeaderboard", leaderboard);
+                }
+            }))
+                .catch((error) => {
+                console.error("Failed to initialize gameController:", error);
+            });
         }));
         socket.on("sendChangeSkin", (username, skin) => __awaiter(this, void 0, void 0, function* () {
             let user = yield (0, DBService_1.getUserByUsername)(username);
@@ -64,6 +77,8 @@ function startWebSocketConnection(server) {
             let lobby = yield (0, DBService_1.hostOnlineMatch)(body);
             console.log("created room", JSON.stringify(lobby));
             io.to(body.roomId).emit("createdRoom");
+            let lobbies = yield (0, DBService_1.getPublicOnlinematches)();
+            io.emit("getLobbies", lobbies);
         }));
         socket.on("sendHostUpdatedLobby", (body, playerName) => __awaiter(this, void 0, void 0, function* () {
             // in db lobby updaten

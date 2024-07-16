@@ -84,7 +84,7 @@ function setup() {
         const testPort = parseInt(process.env.HTTP_PORT);
         const server = http_1.default.createServer(app_1.default);
         server.listen(testPort || 3001, () => {
-            logger_1.logger.info('Server Started PORT ==> ', testPort || 3001);
+            logger_1.logger.info('Server Started PORT ==> ', testPort);
         });
         (0, websockets_1.startWebSocketConnection)(server);
         try {

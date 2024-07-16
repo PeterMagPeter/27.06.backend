@@ -177,7 +177,7 @@ class AiGameController {
         this.switchPlayers(true, switchTo);
     }
     startGame() {
-        this.socket.emit("gameStart", this.playerWhosTurnItIs, this.playerBoard.shipArray);
+        this.socket.emit("gameStart", this.playerWhosTurnItIs);
         logger_1.logger.debug(this.playerWhosTurnItIs);
         // this.switchPlayers(true, switchTo);
     }

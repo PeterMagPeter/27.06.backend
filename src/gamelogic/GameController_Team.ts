@@ -52,11 +52,10 @@ export class TeamGameController {
     this.gameMode = gameMode;
     this.team1Names = team1Names;
     this.team2Names = team2Names;
-    
   }
   async initialize() {
     console.log("teamnames in initialize", this.team1Names, this.team2Names);
-  
+
     const team1Promises = this.team1Names.map(async (name) => {
       let newUser: UserResource | null = await getUserByUsername(name);
       if (newUser) {
@@ -65,7 +64,7 @@ export class TeamGameController {
         this.playerSkins.set(name, newUser.skin);
       }
     });
-  
+
     const team2Promises = this.team2Names.map(async (name) => {
       let newUser: UserResource | null = await getUserByUsername(name);
       if (newUser) {
@@ -73,9 +72,9 @@ export class TeamGameController {
         this.playerSkins.set(name, newUser.skin);
       }
     });
-  
+
     await Promise.all([...team1Promises, ...team2Promises]);
-  
+
     console.log("playerSkins set", this.playerSkins);
   }
   // last player calls the shots
@@ -167,7 +166,7 @@ export class TeamGameController {
       loserNames = this.team2Names;
     }
     let users: UserResource[] = [];
-    let losers: UserResource[] = []
+    let losers: UserResource[] = [];
     names.forEach(() => {
       let user: UserResource | undefined = this.userObjects.find((u) => {
         username === u.username;
@@ -301,7 +300,7 @@ export class TeamGameController {
     );
 
     // console.log("detonateMines ", username, board);
-    if (board) {
+    if (board  && board.mines) {
       let count = 0;
       for (let mine of board.mines) {
         // console.log("detonateMines ", mine);
@@ -335,14 +334,14 @@ export class TeamGameController {
 
       let hitResult = board.teamCheckHit(hitPosition);
       console.log(" - detonateTorped ", hitResult);
-
-      this.shoot(username, hitPosition, true);
+      setTimeout(() => {
+        this.shoot(username, hitPosition, true);
+      }, i * 500);
       console.log(" - detonateTorped nach shoot");
 
       if (hitResult === "Hit") {
         // hit or miss
-        // setTimeout(() => {
-        // }, 1000 + i * 500);
+
         console.log(" return bitte");
         return;
       }

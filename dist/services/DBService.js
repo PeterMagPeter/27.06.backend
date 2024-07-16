@@ -8,6 +8,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __rest = (this && this.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                t[p[i]] = s[p[i]];
+        }
+    return t;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -323,7 +334,7 @@ function getUserByUsername(username) {
         finally {
             yield client.close();
             if (result === null) {
-                throw new Error("Couldn't find user by username!");
+                // throw new Error("Couldn't find user by username!");
             }
             return result;
         }
@@ -748,7 +759,7 @@ function getPublicOnlinematches(gameMode) {
             else {
                 const matches = yield db.collection("PublicOnlinematches").find().toArray();
                 if (matches.length === 0) {
-                    throw new Error("No matches online!");
+                    // throw new Error("No matches online!");
                 }
                 onlineMatches = matches.map((match) => ({
                     roomId: match.roomId,
@@ -850,8 +861,11 @@ function writeLeaderboard() {
                 country: user.country || Resources_1.Country.DE,
                 level: user.level || 0,
             }));
+            // Delete Leaderboard collection
+            yield leaderboard.drop();
+            // Create Leaderboard collection 
+            yield db.createCollection("Leaderboard");
             // Write leaderboard entries to Leaderboard collection
-            yield leaderboard.deleteMany({});
             yield leaderboard.insertMany(leaderboardEntries);
         }
         catch (error) {
@@ -862,29 +876,31 @@ function writeLeaderboard() {
         }
     });
 }
-// Get the leaderboard  
+// Get current leaderboard
 function getLeaderboard() {
     return __awaiter(this, void 0, void 0, function* () {
         const client = new mongodb_1.MongoClient(MONGO_URL);
         let leaderboard = [];
         try {
-            // Create mongoDB native client & get user collection
+            // Create mongoDB native client & get leaderboard collection
             yield client.connect();
-            console.log("Started - writeLeaderboardSimpel");
+            console.log("Started - getLeaderboard");
             const db = client.db("OceanCombat");
-            const leaderboardEntries = yield db.collection("Leaderboard").find().toArray();
-            if (!leaderboardEntries) {
-                throw new Error("Leaderboard is currently being revised!");
+            const leaderboardCollection = db.collection("Leaderboard");
+            // Check if Leaderboard collection is not empty
+            const count = yield leaderboardCollection.countDocuments();
+            if (count > 0) {
+                // Get leaderboard from the collection
+                const leaderboardDocs = yield leaderboardCollection.find().toArray();
+                leaderboard = leaderboardDocs.map((doc) => {
+                    const { _id } = doc, leaderboardEntry = __rest(doc, ["_id"]);
+                    return leaderboardEntry;
+                });
+                return leaderboard;
             }
-            // Add all leaderboard objects to array
-            leaderboard = leaderboardEntries.map((entry) => ({
-                rank: entry.rank,
-                username: entry.username,
-                points: entry.points,
-                country: entry.country,
-                level: entry.level
-            }));
-            return leaderboard;
+            else {
+                return null;
+            }
         }
         catch (error) {
             throw error;
@@ -892,6 +908,7 @@ function getLeaderboard() {
         finally {
             yield client.close();
         }
+        return leaderboard;
     });
 }
 // Get all users

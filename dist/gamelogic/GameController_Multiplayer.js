@@ -125,7 +125,7 @@ class GameController {
     detonateMines(username) {
         let board = this.playerBoards.find((board) => username === board.boardOwner);
         // console.log("detonateMines ", username, board);
-        if (board) {
+        if (board && board.mines) {
             let count = 0;
             for (let mine of board.mines) {
                 // console.log("detonateMines ", mine);
@@ -151,7 +151,9 @@ class GameController {
             console.log(" - detonateTorpedo ", hitPosition);
             let hitResult = board.teamCheckHit(hitPosition);
             console.log(" - detonateTorped ", hitResult);
-            this.shoot(username, hitPosition, true);
+            setTimeout(() => {
+                this.shoot(username, hitPosition, true);
+            }, i * 500);
             console.log(" - detonateTorped nach shoot");
             if (hitResult === "Hit") {
                 // hit or miss

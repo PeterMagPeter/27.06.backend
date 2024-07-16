@@ -16,7 +16,7 @@ const cors_1 = __importDefault(require("cors"));
 function configureCORS(app) {
     var _a;
     const corsOptions = {
-        origin: (_a = process.env.CORS_ORIGIN) !== null && _a !== void 0 ? _a : "https://localhost:3000",
+        origin: (_a = process.env.CORS_ORIGIN) !== null && _a !== void 0 ? _a : "http://localhost:3000",
         methods: "GET,PUT,POST,DELETE",
         allowedHeaders: "Origin,Content-Type",
         optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204

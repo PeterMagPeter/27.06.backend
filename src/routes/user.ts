@@ -96,7 +96,7 @@ userRouter.delete("/:_id",
     }
     const id = req.params!._id;
     try {
-      await deleteUser_UserService(id);
+      await deleteUser_UserService(new ObjectId(id));
       res.sendStatus(204);
     } catch (error) {
       res.status(404);
@@ -169,6 +169,7 @@ userRouter.post("/",
     const userData = matchedData(req) as RegisterResource;
     try {
       // Create user with schema & write it into the db
+      console.log("wird angelegt")
       const user = await createUserAccount_UserService(userData);  
       res.status(201).send(user);
       return;   // To prevent function continues in catch-block, when everything was fine.

@@ -92,9 +92,10 @@ exports.loginRouter.post("/", (0, express_validator_1.body)("email").isString().
     }
     // Extract email from req as additional factor, to make cookie name unique
     const email = req.body.email;
+    const password = req.body.password;
     try {
         const data = (0, express_validator_1.matchedData)(req);
-        const jwtString = yield (0, JWTService_1.verifyPasswordAndCreateJWT)(data.email, data.password);
+        const jwtString = yield (0, JWTService_1.verifyPasswordAndCreateJWT)(email, password);
         const login = (0, JWTService_1.verifyJWT)(jwtString);
         // Exp. needs to be multiplied by 1000 to convert secs ==> millisec [Needed by JavaScript date object]
         const exp = new Date(login.exp * 1000);

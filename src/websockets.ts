@@ -12,12 +12,14 @@ import { log } from "console";
 import {
   deleteEntriesFromCollection,
   deleteOnlineMatch,
+  getLeaderboard,
   getPublicOnlinematches,
   getUserByUsername,
   hostOnlineMatch,
   joinOnlineMatch,
   updateOnlineMatch,
   updateUserData,
+  writeLeaderboard,
 } from "./services/DBService";
 import { OnlineMatchResource, Team1Name, Team2Name } from "./Resources";
 interface ExtendedSocket extends Socket {
@@ -35,11 +37,25 @@ export function startWebSocketConnection(server: any) {
   let playerBoards: { [username: string]: Board } = {};
   io.on("connection", (socket: any) => {
     console.log("New connection:", socket.id);
-    socket.on("sendGiveMeMySkin", async (username: string) => {
+
+    socket.on("sendGetUser", async (username: string) => {
       let user = await getUserByUsername(username);
       if (user) {
-        socket.emit("giveSkin", user.skin);
+        socket.emit("getUser", user);
       }
+    });
+    socket.on("sendGetLeaderboard", async () => {
+      await writeLeaderboard()
+        .then(async () => {
+          let leaderboard = await getLeaderboard();
+          if (leaderboard) {
+            console.log(leaderboard);
+            socket.emit("getLeaderboard", leaderboard);
+          }
+        })
+        .catch((error) => {
+          console.error("Failed to initialize gameController:", error);
+        });
     });
     socket.on("sendChangeSkin", async (username: string, skin: string) => {
       let user = await getUserByUsername(username);
@@ -71,6 +87,8 @@ export function startWebSocketConnection(server: any) {
       let lobby = await hostOnlineMatch(body);
       console.log("created room", JSON.stringify(lobby));
       io.to(body.roomId).emit("createdRoom");
+      let lobbies = await getPublicOnlinematches();
+      io.emit("getLobbies", lobbies);
     });
     socket.on(
       "sendHostUpdatedLobby",

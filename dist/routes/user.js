@@ -101,7 +101,7 @@ exports.userRouter.delete("/:_id", (0, express_validator_1.param)("_id").isMongo
     }
     const id = req.params._id;
     try {
-        yield (0, UserService_1.deleteUser_UserService)(id);
+        yield (0, UserService_1.deleteUser_UserService)(new mongodb_1.ObjectId(id));
         res.sendStatus(204);
     }
     catch (error) {
@@ -168,6 +168,7 @@ exports.userRouter.post("/", (0, express_validator_1.body)("email").isString().i
     const userData = (0, express_validator_1.matchedData)(req);
     try {
         // Create user with schema & write it into the db
+        console.log("wird angelegt");
         const user = yield (0, UserService_1.createUserAccount_UserService)(userData);
         res.status(201).send(user);
         return; // To prevent function continues in catch-block, when everything was fine.
