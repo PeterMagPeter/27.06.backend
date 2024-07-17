@@ -49,9 +49,28 @@ exports.guestRouter.get("/all", (_req, res, _next) => __awaiter(void 0, void 0, 
     res.sendStatus(404);
 }));
 /**
- * Delets a single guest
+ * @swagger
+ * /api/guest/{id}:
+ *   delete:
+ *     summary: Deletes a single guest
+ *     tags: [Guest]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         required: true
+ *         description: The guest id
+ *     responses:
+ *       204:
+ *         description: The guest was successfully deleted
+ *       400:
+ *         description: Validation errors
+ *       404:
+ *         description: The guest was not found
  */
-exports.guestRouter.delete("/:id", (0, express_validator_1.param)("id").isMongoId(), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+exports.guestRouter.delete("/:_id", (0, express_validator_1.param)("_id").isMongoId(), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const errors = (0, express_validator_1.validationResult)(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
@@ -67,9 +86,41 @@ exports.guestRouter.delete("/:id", (0, express_validator_1.param)("id").isMongoI
     }
 }));
 /**
- * Creates a single guest if data is valid
+ * @swagger
+ * /api/guest:
+ *   post:
+ *     summary: Creates a single guest if data is valid
+ *     tags: [Guest]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 minLength: 3
+ *                 maxLength: 30
+ *               points:
+ *                 type: integer
+ *                 minimum: 0
+ *                 maximum: 1000000
+ *               level:
+ *                 type: integer
+ *                 minimum: 1
+ *                 maximum: 1000
+ *               gameSound:
+ *                 type: number
+ *               music:
+ *                 type: number
+ *     responses:
+ *       201:
+ *         description: The guest was successfully created
+ *       400:
+ *         description: Validation errors or duplicate user
  */
-exports.guestRouter.post("/", (0, express_validator_1.body)("username").isString().isLength({ min: NAME_MIN_LENGTH, max: NAME_MAX_LENGTH }), (0, express_validator_1.body)("points").optional().isNumeric().isInt({ min: POINTS_MIN, max: POINTS_MAX }), (0, express_validator_1.body)("level").optional().isNumeric().isInt({ min: LVL_MIN, max: LVL_MAX }), (0, express_validator_1.body)("gameSound").optional().isBoolean(), (0, express_validator_1.body)("music").optional().isBoolean(), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+exports.guestRouter.post("/", (0, express_validator_1.body)("username").isString().isLength({ min: NAME_MIN_LENGTH, max: NAME_MAX_LENGTH }), (0, express_validator_1.body)("points").optional().isNumeric().isInt({ min: POINTS_MIN, max: POINTS_MAX }), (0, express_validator_1.body)("level").optional().isNumeric().isInt({ min: LVL_MIN, max: LVL_MAX }), (0, express_validator_1.body)("gameSound").optional().isNumeric(), (0, express_validator_1.body)("music").optional().isNumeric(), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const errors = (0, express_validator_1.validationResult)(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
@@ -88,7 +139,7 @@ exports.guestRouter.post("/", (0, express_validator_1.body)("username").isString
                         location: "body",
                         msg: "User with that name already exists!",
                         path: "username",
-                        value: "guestData.username"
+                        value: guestData.username
                     }]
             });
         }
@@ -97,9 +148,52 @@ exports.guestRouter.post("/", (0, express_validator_1.body)("username").isString
     }
 }));
 /**
- * Updates the properties of a guest
+ * @swagger
+ * /api/guest/{id}:
+ *   put:
+ *     summary: Updates the properties of a guest
+ *     tags: [Guest]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         required: true
+ *         description: The guest id
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               id:
+ *                 type: string
+ *                 format: uuid
+ *               points:
+ *                 type: integer
+ *                 minimum: 0
+ *                 maximum: 1000000
+ *               level:
+ *                 type: integer
+ *                 minimum: 1
+ *                 maximum: 1000
+ *               gameSound:
+ *                 type: number
+ *               music:
+ *                 type: number
+ *               higherLvlChallenge:
+ *                 type: boolean
+ *     responses:
+ *       200:
+ *         description: The guest was successfully updated
+ *       400:
+ *         description: Validation errors
+ *       404:
+ *         description: The guest was not found
  */
-exports.guestRouter.put("/:id", (0, express_validator_1.param)("id").isMongoId(), (0, express_validator_1.body)("id").isMongoId(), (0, express_validator_1.body)("points").optional().isNumeric().isInt({ min: POINTS_MIN, max: POINTS_MAX }), (0, express_validator_1.body)("level").optional().isNumeric().isInt({ min: LVL_MIN, max: LVL_MAX }), (0, express_validator_1.body)("gameSound").optional().isBoolean(), (0, express_validator_1.body)("music").optional().isBoolean(), (0, express_validator_1.body)("higherLvlChallenge").optional().isBoolean(), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+exports.guestRouter.put("/:_id", (0, express_validator_1.param)("_id").isMongoId(), (0, express_validator_1.body)("_id").isMongoId(), (0, express_validator_1.body)("points").optional().isNumeric().isInt({ min: POINTS_MIN, max: POINTS_MAX }), (0, express_validator_1.body)("level").optional().isNumeric().isInt({ min: LVL_MIN, max: LVL_MAX }), (0, express_validator_1.body)("gameSound").optional().isNumeric(), (0, express_validator_1.body)("music").optional().isNumeric(), (0, express_validator_1.body)("higherLvlChallenge").optional().isBoolean(), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const errors = (0, express_validator_1.validationResult)(req);
     if (!errors.isEmpty()) {
         return res.status(400).send({ errors: errors.array() });
@@ -108,8 +202,8 @@ exports.guestRouter.put("/:id", (0, express_validator_1.param)("id").isMongoId()
     const guestData = (0, express_validator_1.matchedData)(req);
     if (id !== guestData.id) {
         return res.status(400).send({
-            errors: [{ "location": "params", "path": "id" },
-                { "location": "body", "path": "id" }]
+            errors: [{ "location": "params", "path": "_id" },
+                { "location": "body", "path": "_id" }]
         });
     }
     try {
@@ -122,11 +216,28 @@ exports.guestRouter.put("/:id", (0, express_validator_1.param)("id").isMongoId()
     }
 }));
 /**
- * Sends a single guest.
+ * @swagger
+ * /api/guest/{id}:
+ *   get:
+ *     summary: Sends a single guest
+ *     tags: [Guest]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         required: true
+ *         description: The guest id
+ *     responses:
+ *       200:
+ *         description: The guest was successfully retrieved
+ *       404:
+ *         description: The guest was not found
  */
-exports.guestRouter.get("/:id", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+exports.guestRouter.get("/:_id", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const id = req.params.id;
+        const id = req.params._id;
         const guest = yield (0, GuestService_1.getGuest)(id);
         res.send(guest);
     }
@@ -135,4 +246,5 @@ exports.guestRouter.get("/:id", (req, res, next) => __awaiter(void 0, void 0, vo
         next(error);
     }
 }));
+exports.default = exports.guestRouter;
 //# sourceMappingURL=guest.js.map

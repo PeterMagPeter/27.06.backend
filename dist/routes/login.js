@@ -17,7 +17,27 @@ const express_1 = __importDefault(require("express"));
 const express_validator_1 = require("express-validator");
 const JWTService_1 = require("../services/JWTService");
 exports.loginRouter = express_1.default.Router();
-//get a user
+/**
+ * @swagger
+ * /api/login:
+ *   get:
+ *     summary: Get a user based on JWT cookie
+ *     tags: [Login]
+ *     responses:
+ *       200:
+ *         description: The user information
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 username:
+ *                   type: string
+ *                 email:
+ *                   type: string
+ *       400:
+ *         description: Invalid or missing token
+ */
 exports.loginRouter.get("/", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const cookie = req.cookies.access_token;
@@ -36,7 +56,35 @@ exports.loginRouter.get("/", (req, res, next) => __awaiter(void 0, void 0, void 
         next(error);
     }
 }));
-//post cookie
+/**
+ * @swagger
+ * /api/login:
+ *   post:
+ *     summary: Log in a user and set JWT cookie
+ *     tags: [Login]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 minLength: 1
+ *                 maxLength: 100
+ *               password:
+ *                 type: string
+ *                 minLength: 1
+ *                 maxLength: 100
+ *     responses:
+ *       201:
+ *         description: The user was successfully logged in
+ *       400:
+ *         description: Validation errors
+ *       401:
+ *         description: Unauthorized
+ */
 exports.loginRouter.post("/", (0, express_validator_1.body)("email").isString().isLength({ min: 1, max: 100 }), (0, express_validator_1.body)("password").isLength({ min: 1, max: 100 }), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const errors = (0, express_validator_1.validationResult)(req);
     if (!errors.isEmpty()) {
@@ -44,9 +92,10 @@ exports.loginRouter.post("/", (0, express_validator_1.body)("email").isString().
     }
     // Extract email from req as additional factor, to make cookie name unique
     const email = req.body.email;
+    const password = req.body.password;
     try {
         const data = (0, express_validator_1.matchedData)(req);
-        const jwtString = yield (0, JWTService_1.verifyPasswordAndCreateJWT)(data.email, data.password);
+        const jwtString = yield (0, JWTService_1.verifyPasswordAndCreateJWT)(email, password);
         const login = (0, JWTService_1.verifyJWT)(jwtString);
         // Exp. needs to be multiplied by 1000 to convert secs ==> millisec [Needed by JavaScript date object]
         const exp = new Date(login.exp * 1000);
@@ -61,13 +110,17 @@ exports.loginRouter.post("/", (0, express_validator_1.body)("email").isString().
         next(error);
     }
 }));
-//delete cookie
+/**
+ * @swagger
+ * /api/login:
+ *   delete:
+ *     summary: Log out a user by clearing JWT cookie
+ *     tags: [Login]
+ *     responses:
+ *       204:
+ *         description: The user was successfully logged out
+ */
 exports.loginRouter.delete("/", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    // Extract email from req to find unique cookie name
-    // const email = req.body.email;
-    // if (!email) {
-    //     return res.status(400).send({ error: "Email is required!" });
-    // }
     // Clear cookie [This code part has been written by AI]
     res.clearCookie("ocean-combat_access_token", {
         httpOnly: true,
@@ -76,4 +129,5 @@ exports.loginRouter.delete("/", (req, res, next) => __awaiter(void 0, void 0, vo
     });
     res.status(204).send();
 }));
+exports.default = exports.loginRouter;
 //# sourceMappingURL=login.js.map

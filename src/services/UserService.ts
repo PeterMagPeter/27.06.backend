@@ -1,28 +1,17 @@
-import { UserResource } from "../Resources";
-import { User } from "../model/UserModel";
-import { deleteUserById, getAllUsers, getUserById, registerUser, updateUserData } from "./DBService";
+import { UserResource, RegisterResource } from "../Resources"
+import { deleteUserById, getAllUsers, getUserById, getUserByMail, getUserByUsername, registerUser, updateUserData } from "./DBService";
+import { ObjectId } from "mongodb";
+import bcrypt from "bcryptjs"
 
 /**
  * Create user with data from UserResource and write it into db
  */
-export async function createUserAccount_UserService(userRes: UserResource) {
-    const user = await User.create({
-        email: userRes.email,
-        password: userRes.password,
-        username: userRes.username,
-        points: userRes.points,
-        premium: userRes.premium,
-        level: userRes.level,
-        gameSound: userRes.gameSound,
-        music: userRes.music,
-        higherLvlChallenge: userRes.higherLvlChallenge,
-        verified: userRes.verified,
-        verificationTimer: userRes.verificationTimer
-    });
+export async function createUserAccount_UserService(registerRes: RegisterResource): Promise<UserResource> {
 
-    // Write user into db
+    // Hash password and write user into db
     try {
-        return await registerUser(user);
+        let result = await registerUser(registerRes);
+        return result;
     } catch (error) {
         throw error;
     }
@@ -33,7 +22,7 @@ export async function createUserAccount_UserService(userRes: UserResource) {
  * If no id is provided or user couldn't be found, an error is thrown.
  */
 export async function updateUser_UserService(userRes: UserResource) {
-    if (!userRes.id) {
+    if (!userRes._id) {
         throw new Error("Please provide an user to update!");
     }
     try {
@@ -47,7 +36,7 @@ export async function updateUser_UserService(userRes: UserResource) {
  * Get and return user by mail.
  * If user couldn't be found an error is thrown.
  */
-export async function getUser_UserService(userId: string) {
+export async function getUser_UserService(userId: ObjectId) {
     if (!userId) {
         throw new Error("Please provide an email to search for!");
     }
@@ -62,7 +51,7 @@ export async function getUser_UserService(userId: string) {
  * Identify user by mail.
  * If user couldn't be found an error is thrown.
  */
-export async function deleteUser_UserService(userId: string) {
+export async function deleteUser_UserService(userId: ObjectId) {
     if (!userId) {
         throw new Error("Please provide an email to search for!");
     }
@@ -77,18 +66,54 @@ export async function deleteUser_UserService(userId: string) {
 }
 
 /**
+ * @param password is going to be hashed to avoid that it is saved in plaintext
+ * @returns the hashed password incl. salt that has been used to hash password
+ */
+export async function hashPassword(password: string): Promise<string> {
+    const saltRounds: number = 10;
+    const hashedPassword: string = await bcrypt.hash(password, saltRounds);
+    return hashedPassword;
+}
+
+/**
+ * @param email is used to search for a user in the db
+ * @param password is used to compare if the given input data matches the found user and it's password
+ * @returns result of comparison
+ */
+export async function isCorrectPassword(email: string, password: string): Promise<boolean> {
+    let result: boolean = false;
+
+    let userByMail = await getUserByMail(email);
+    if(userByMail !== null && userByMail.password){
+        const correct = await bcrypt.compare(password, userByMail.password);
+        if(correct){
+            return true;
+        }
+    } 
+    return result;
+}
+
+/**
  * Returns all users stored in DB.
  * Omits privacy related data, i.e. email, id and member status
  */
 export async function getAllUsers_UserService(): Promise<UserResource[]> {
     const users = await getAllUsers();
-    const userResources = users.map(user => ({
-        username: user.username,
+    let userResources: UserResource[] = [];
+
+    userResources = users.map(user => ({
+        _id: user._id,
         email: user.email,
+        username: user.username,
         points: user.points,
+        premium: user.premium,
         level: user.level,
+        gameSound: user.gameSound,
+        music: user.music,
+        higherLvlChallenge: user.higherLvlChallenge,
         verified: user.verified,
-        verificationTimer: user.verificationTimer
+        verificationTimer: user.verificationTimer,
+        skin: user.skin
     }));
     return userResources;
 }

@@ -11,7 +11,13 @@ export type HitResult = {
     y: number;
     username: string;
     hit: boolean;
-    switchTo: string;
+    switchTo?: string;
+}
+export type TeamHitResult = {
+    x: number;
+    y: number;
+    username: string;
+    hit: boolean;
 }
 
 export type miniHit = {

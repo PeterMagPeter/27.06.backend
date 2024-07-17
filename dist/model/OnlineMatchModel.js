@@ -25,7 +25,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.OnlineMatchModel = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
-const Resources_1 = require("src/Resources");
+const Resources_1 = require("../Resources");
 const onlineMatchModelSchema = new mongoose_1.Schema({
     roomId: { type: String, required: true },
     privateMatch: { type: Boolean, required: true, default: false },

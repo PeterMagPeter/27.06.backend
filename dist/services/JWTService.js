@@ -40,6 +40,7 @@ function verifyPasswordAndCreateJWT(email, password) {
 }
 function verifyJWT(jwtString) {
     const secret = process.env.JWT_SECRET;
+    console.log(jwtString, secret);
     if (jwtString && secret) {
         const payload = (0, jsonwebtoken_1.verify)(jwtString, secret);
         if (payload) {

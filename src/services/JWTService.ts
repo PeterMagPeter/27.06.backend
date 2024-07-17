@@ -28,6 +28,7 @@ export async function verifyPasswordAndCreateJWT(email: string, password: string
 
 export function verifyJWT(jwtString: string | undefined): LoginResource {
     const secret = process.env.JWT_SECRET
+    console.log(jwtString, secret)
     if (jwtString && secret) {
         const payload = verify(jwtString, secret)
         if (payload) {

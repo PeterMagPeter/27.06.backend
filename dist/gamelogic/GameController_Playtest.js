@@ -94,6 +94,57 @@ class AiGameController {
         else {
         }
     }
+    // detonate mines on each board
+    detonateMines(username) {
+        let board = this.playerBoard.boardOwner == username ? this.playerBoard : this.aiBoard;
+        if (board)
+            for (let mine of board.mines) {
+                this.shoot(board.boardOwner, mine);
+            }
+    }
+    // detonate torpedo
+    detonateTorpedo(username, position, horizontal) {
+        let board = this.playerBoard.boardOwner == username ? this.playerBoard : this.aiBoard;
+        if (horizontal) {
+            if (board === null || board === void 0 ? void 0 : board.cols) {
+                for (let i = 0; i < (board === null || board === void 0 ? void 0 : board.cols); i++) {
+                    let hitPosition = { x: position.x, y: i };
+                    let hitResult = board.checkHit(hitPosition, username);
+                    if (this.isMiniHit(hitResult)) {
+                        // hit or miss
+                        if (hitResult.hit === true) {
+                            this.shoot(board.boardOwner, hitPosition);
+                        }
+                    }
+                }
+            }
+        }
+        else {
+            if (board === null || board === void 0 ? void 0 : board.rows) {
+                for (let i = 0; i < (board === null || board === void 0 ? void 0 : board.rows); i++) {
+                    let hitPosition = { x: i, y: position.y };
+                    let hitResult = board.checkHit(hitPosition, username);
+                    if (this.isMiniHit(hitResult)) {
+                        // hit or miss
+                        if (hitResult.hit === true) {
+                            this.shoot(board.boardOwner, hitPosition);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    // position needs to be min 1 for x and y
+    detonateDrone(position) {
+        let uncoveredPositions = [
+            { x: position.x, y: position.y },
+            { x: position.x, y: position.y - 1 },
+            { x: position.x, y: position.y + 1 },
+            { x: position.x - 1, y: position.y },
+            { x: position.x + 1, y: position.y },
+        ];
+        return uncoveredPositions;
+    }
     getCurrentPlayer() {
         return this.playerWhosTurnItIs;
     }

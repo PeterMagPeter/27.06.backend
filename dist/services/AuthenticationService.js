@@ -10,8 +10,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.login = login;
-const UserModel_1 = require("../model/UserModel");
 const DBService_1 = require("./DBService");
+const UserService_1 = require("./UserService");
 /**
  * Checks name and password. If successful, true is returned, otherwise false
  */
@@ -19,21 +19,14 @@ function login(email, password) {
     return __awaiter(this, void 0, void 0, function* () {
         // Try to find user in db
         const dbUser = yield (0, DBService_1.getUserByMail)(email);
-        // Check, if user account is already activated
-        if (dbUser && !dbUser.verified) {
-            return false;
+        // Check, if user exists, if account is already activated and if credentials are correct
+        if (dbUser !== null && dbUser.verified) {
+            const passwordValid = yield (0, UserService_1.isCorrectPassword)(email, password);
+            if (passwordValid) {
+                return { id: dbUser === null || dbUser === void 0 ? void 0 : dbUser._id.toString() };
+            }
         }
-        // Create user (just for use of isCorrectPassword() from user schema)
-        let user;
-        if (dbUser !== null) {
-            user = yield UserModel_1.User.create(Object.assign({}, dbUser));
-        }
-        // Check password
-        const pwValid = yield (user === null || user === void 0 ? void 0 : user.isCorrectPassword(password));
-        if (!pwValid)
-            return false;
-        else
-            return { id: user === null || user === void 0 ? void 0 : user.id };
+        return false;
     });
 }
 //# sourceMappingURL=AuthenticationService.js.map

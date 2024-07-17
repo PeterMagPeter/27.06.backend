@@ -11,6 +11,7 @@ const guestSchema = new mongoose_1.Schema({
     level: { type: Number, default: 1 },
     gameSound: { type: Number, default: 0.3 },
     music: { type: Number, default: 0.3 },
+    skin: { type: String, default: "standard" }
 });
 exports.Guest = (0, mongoose_1.model)("Guest", guestSchema);
 //# sourceMappingURL=GuestModel.js.map

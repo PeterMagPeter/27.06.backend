@@ -7,21 +7,27 @@ const logger_1 = require("../logger");
 // other identifiers:
 // "O" = MISS; "." = NOTHING; "X" = HIT; "D" = DESTROYED
 class Board {
-    constructor(boardSize, shipQuantity, boardOwner, playfield, // spielfeld mit . und identifier der Schiffe
+    constructor(rows, cols, shipQuantity, boardOwner, playfield, // spielfeld mit . und identifier der Schiffe
     ships, // die Schiffe die der boardOwner gesetzt hat
-    roomId) {
+    roomId, mines) {
         this.ships = new Map(); // own ships
+        this.shipArray = [];
         // this.ships = new Map<string, Ship>();
         // logger.info("constructor ships " + JSON.stringify(ships));
         this.addShips(ships);
+        this.shipArray = [...ships];
+        this.rows = rows;
+        this.cols = cols;
         this.identifier = ["2a", "2b", "3a", "3b", "4", "5"];
-        this.playfield = [];
         this.sunkCounter = 0;
-        this.columnAmount = boardSize;
         this.shipQuantity = shipQuantity;
+        this.mines = [];
         this.boardOwner = boardOwner;
         this.roomId = roomId;
         this.playfield = playfield;
+        if (mines) {
+            this.mines = mines;
+        }
         for (let i = 0; i < playfield.length; i++)
             logger_1.logger.debug(this.playfield[i]);
         logger_1.logger.debug("------------" + boardOwner + "-------------");
@@ -30,14 +36,15 @@ class Board {
     checkHit(shotPosition, shooterName) {
         let elementAt = this.playfield[shotPosition.y][shotPosition.x];
         logger_1.logger.debug("- checkHit: elementAt" + elementAt);
-        if (elementAt === ".") {
+        if (elementAt === "." || elementAt === "O") {
             this.playfield[shotPosition.y][shotPosition.x] = "O";
             return { x: shotPosition.x, y: shotPosition.y, hit: false };
         }
-        else if (elementAt === "X" || elementAt === "O") {
-            let test = { scheiße: "an die wand" };
-            logger_1.logger.error(JSON.stringify(test) + " elementAT " + elementAt);
-            return test;
+        else if (elementAt === "X") {
+            let test = { Fehler: "auf bestehenden Hit/ Miss geclickt" };
+            logger_1.logger.error(JSON.stringify(test) + " elementAT " + elementAt),
+                shotPosition;
+            return { x: shotPosition.x, y: shotPosition.y, hit: true };
         }
         else {
             let test = { test: "stinkt dieser Tag" }; // DAS WIRD
@@ -87,6 +94,45 @@ class Board {
             return test;
         }
     }
+    teamCheckHit(shotPosition) {
+        let elementAt = this.playfield[shotPosition.y][shotPosition.x];
+        logger_1.logger.debug("- teamCheckHit: elementAt " + elementAt);
+        if (elementAt === "." || elementAt === "O") {
+            let minHit = {
+                x: shotPosition.x,
+                y: shotPosition.y,
+                hit: false,
+            };
+            return minHit;
+        }
+        return "Hit";
+    }
+    droneCheckHit(shotPosition) {
+        let elementAt = this.playfield[shotPosition.y][shotPosition.x];
+        logger_1.logger.debug("- droneCheckHit: elementAt " + elementAt);
+        let miniHit = null;
+        if (!(shotPosition.x >= 0 &&
+            shotPosition.x < this.rows &&
+            shotPosition.y >= 0 &&
+            shotPosition.y < this.cols)) {
+            return miniHit;
+        }
+        if (elementAt === "." || elementAt === "O") {
+            miniHit = {
+                x: shotPosition.x,
+                y: shotPosition.y,
+                hit: false,
+            };
+        }
+        else {
+            miniHit = {
+                x: shotPosition.x,
+                y: shotPosition.y,
+                hit: true,
+            };
+        }
+        return miniHit;
+    }
     // setShipPositions() {
     //   this.ships.forEach((ship) => {
     //     ship.initialPositions.forEach((position) => {
@@ -102,6 +148,9 @@ class Board {
             // logger.debug(JSON.stringify(ship.identifier));
         }
         // logger.debug("-----adships-------");
+    }
+    addMines(mines) {
+        this.mines = mines;
     }
 }
 exports.Board = Board;

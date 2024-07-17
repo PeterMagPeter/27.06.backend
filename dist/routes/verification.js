@@ -16,16 +16,40 @@ exports.verificationRouter = void 0;
 const express_1 = __importDefault(require("express"));
 const DBService_1 = require("../services/DBService");
 const express_validator_1 = require("express-validator");
+const mongodb_1 = require("mongodb");
 exports.verificationRouter = express_1.default.Router();
-// Validate email adress and activate user account
-exports.verificationRouter.put('/:id', (0, express_validator_1.param)("id").isMongoId(), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+/**
+ * @swagger
+ * /api/verify/{id}:
+ *   get:
+ *     summary: Validate email address and activate user account
+ *     tags: [Verification]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         required: true
+ *         description: The user id
+ *     responses:
+ *       200:
+ *         description: Your account has been activated successfully!
+ *       400:
+ *         description: Failed to activate your account or validation errors
+ *       500:
+ *         description: Internal server error
+ */
+exports.verificationRouter.get('/:_id', (0, express_validator_1.param)("_id").isMongoId(), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     const errors = (0, express_validator_1.validationResult)(req);
     if (!errors.isEmpty()) {
         return res.status(400).send({ errors: errors.array() });
     }
-    const id = req.params.id;
+    const id = (_a = req.params) === null || _a === void 0 ? void 0 : _a._id;
+    console.log("params.id " + id);
     try {
-        const result = yield (0, DBService_1.activateUserAccount)(id);
+        const result = yield (0, DBService_1.activateUserAccount)(new mongodb_1.ObjectId(id));
         if (result) {
             res.status(200).send('Your account has been activated successfully!');
         }
@@ -38,4 +62,5 @@ exports.verificationRouter.put('/:id', (0, express_validator_1.param)("id").isMo
         res.status(500).send('Internal server error.');
     }
 }));
+exports.default = exports.verificationRouter;
 //# sourceMappingURL=verification.js.map

@@ -8,35 +8,28 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createUserAccount_UserService = createUserAccount_UserService;
 exports.updateUser_UserService = updateUser_UserService;
 exports.getUser_UserService = getUser_UserService;
 exports.deleteUser_UserService = deleteUser_UserService;
+exports.hashPassword = hashPassword;
+exports.isCorrectPassword = isCorrectPassword;
 exports.getAllUsers_UserService = getAllUsers_UserService;
-const UserModel_1 = require("../model/UserModel");
 const DBService_1 = require("./DBService");
+const bcryptjs_1 = __importDefault(require("bcryptjs"));
 /**
  * Create user with data from UserResource and write it into db
  */
-function createUserAccount_UserService(userRes) {
+function createUserAccount_UserService(registerRes) {
     return __awaiter(this, void 0, void 0, function* () {
-        const user = yield UserModel_1.User.create({
-            email: userRes.email,
-            password: userRes.password,
-            username: userRes.username,
-            points: userRes.points,
-            premium: userRes.premium,
-            level: userRes.level,
-            gameSound: userRes.gameSound,
-            music: userRes.music,
-            higherLvlChallenge: userRes.higherLvlChallenge,
-            verified: userRes.verified,
-            verificationTimer: userRes.verificationTimer
-        });
-        // Write user into db
+        // Hash password and write user into db
         try {
-            return yield (0, DBService_1.registerUser)(user);
+            let result = yield (0, DBService_1.registerUser)(registerRes);
+            return result;
         }
         catch (error) {
             throw error;
@@ -49,7 +42,7 @@ function createUserAccount_UserService(userRes) {
  */
 function updateUser_UserService(userRes) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (!userRes.id) {
+        if (!userRes._id) {
             throw new Error("Please provide an user to update!");
         }
         try {
@@ -98,19 +91,55 @@ function deleteUser_UserService(userId) {
     });
 }
 /**
+ * @param password is going to be hashed to avoid that it is saved in plaintext
+ * @returns the hashed password incl. salt that has been used to hash password
+ */
+function hashPassword(password) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const saltRounds = 10;
+        const hashedPassword = yield bcryptjs_1.default.hash(password, saltRounds);
+        return hashedPassword;
+    });
+}
+/**
+ * @param email is used to search for a user in the db
+ * @param password is used to compare if the given input data matches the found user and it's password
+ * @returns result of comparison
+ */
+function isCorrectPassword(email, password) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let result = false;
+        let userByMail = yield (0, DBService_1.getUserByMail)(email);
+        if (userByMail !== null && userByMail.password) {
+            const correct = yield bcryptjs_1.default.compare(password, userByMail.password);
+            if (correct) {
+                return true;
+            }
+        }
+        return result;
+    });
+}
+/**
  * Returns all users stored in DB.
  * Omits privacy related data, i.e. email, id and member status
  */
 function getAllUsers_UserService() {
     return __awaiter(this, void 0, void 0, function* () {
         const users = yield (0, DBService_1.getAllUsers)();
-        const userResources = users.map(user => ({
-            username: user.username,
+        let userResources = [];
+        userResources = users.map(user => ({
+            _id: user._id,
             email: user.email,
+            username: user.username,
             points: user.points,
+            premium: user.premium,
             level: user.level,
+            gameSound: user.gameSound,
+            music: user.music,
+            higherLvlChallenge: user.higherLvlChallenge,
             verified: user.verified,
-            verificationTimer: user.verificationTimer
+            verificationTimer: user.verificationTimer,
+            skin: user.skin
         }));
         return userResources;
     });
