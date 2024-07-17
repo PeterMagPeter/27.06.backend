@@ -282,7 +282,7 @@ export class TeamGameController {
       : Team2Name;
     // returns the board that gets shot at
     const board = this.playerBoards.find(
-      (board) => board.boardOwner != teamName
+      (board) => board.boardOwner === teamName
     );
     if (!board)
       throw new Error("Whooops, didn't find the boards we are looking for! ");

@@ -40,6 +40,7 @@ export function startWebSocketConnection(server: any) {
 
     socket.on("sendGetUser", async (username: string) => {
       let user = await getUserByUsername(username);
+      delete playerBoards[username];
       if (user) {
         socket.emit("getUser", user);
       }
@@ -76,8 +77,11 @@ export function startWebSocketConnection(server: any) {
       socket.join(roomId);
       // an db senden wo und wer joined
       let lobby = await joinOnlineMatch(roomId, username);
-      console.log(`${username} joined room: ${roomId}`, lobby);
-      io.to(roomId).emit("playerJoinedRoom", lobby, username); // players, hostname
+      if (lobby) {
+        socket.join(roomId);
+        console.log(`${username} joined room: ${roomId}`, lobby);
+        io.to(roomId).emit("playerJoinedRoom", lobby, username); // players, hostname}
+      }
     });
 
     // erstellt Lobby ------- need to update this to send it back too all player in room and update it in db
@@ -86,9 +90,9 @@ export function startWebSocketConnection(server: any) {
       // in db lobby erstellen
       let lobby = await hostOnlineMatch(body);
       console.log("created room", JSON.stringify(lobby));
-      io.to(body.roomId).emit("createdRoom");
+      if (lobby) io.to(body.roomId).emit("createdRoom");
       let lobbies = await getPublicOnlinematches();
-      io.emit("getLobbies", lobbies);
+      if (lobbies) io.emit("getLobbies", lobbies);
     });
     socket.on(
       "sendHostUpdatedLobby",
@@ -281,6 +285,7 @@ export function startWebSocketConnection(server: any) {
       ) => {
         console.log("sendDetonateTorpedo");
         if (gameControllers.has(roomId)) {
+          io.to(roomId).emit("detonateTorpedo", username);
           const gameController = gameControllers.get(roomId);
           gameController.detonateTorpedo(username, startPosition, horizontal);
         }
@@ -292,6 +297,7 @@ export function startWebSocketConnection(server: any) {
       (roomId: string, username: string, startPosition: Position) => {
         console.log("sendDetonateDrone");
         if (gameControllers.has(roomId)) {
+          io.to(roomId).emit("detonateDrone", username);
           const gameController = gameControllers.get(roomId);
           gameController.detonateDrone(username, startPosition);
         }
