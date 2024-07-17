@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.login = login;
+exports.login = void 0;
 const DBService_1 = require("./DBService");
 const UserService_1 = require("./UserService");
 /**
@@ -29,4 +29,5 @@ function login(email, password) {
         return false;
     });
 }
+exports.login = login;
 //# sourceMappingURL=AuthenticationService.js.map
