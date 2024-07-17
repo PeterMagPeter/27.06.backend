@@ -296,7 +296,7 @@ export class TeamGameController {
       : Team2Name;
     // returns the board that gets shot at
     const board = this.playerBoards.find(
-      (board) => board.boardOwner != teamName
+      (board) => board.boardOwner === teamName
     );
 
     // console.log("detonateMines ", username, board);

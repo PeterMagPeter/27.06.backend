@@ -39,6 +39,7 @@ export function startWebSocketConnection(server: any) {
     console.log("New connection:", socket.id);
 
     socket.on("sendGetUser", async (username: string) => {
+      delete playerBoards[username]
       let user = await getUserByUsername(username);
       if (user) {
         socket.emit("getUser", user);
@@ -281,6 +282,7 @@ export function startWebSocketConnection(server: any) {
       ) => {
         console.log("sendDetonateTorpedo");
         if (gameControllers.has(roomId)) {
+          io.to(roomId).emit("detonateTorpedo", username);
           const gameController = gameControllers.get(roomId);
           gameController.detonateTorpedo(username, startPosition, horizontal);
         }
@@ -292,6 +294,7 @@ export function startWebSocketConnection(server: any) {
       (roomId: string, username: string, startPosition: Position) => {
         console.log("sendDetonateDrone");
         if (gameControllers.has(roomId)) {
+          io.to(roomId).emit("detonateDrone", username);
           const gameController = gameControllers.get(roomId);
           gameController.detonateDrone(username, startPosition);
         }
