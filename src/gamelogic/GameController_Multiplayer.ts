@@ -4,7 +4,11 @@ import { Position, HitResult, ShipType, miniHit } from "./Types";
 import { Ship } from "./Ship";
 import { json } from "stream/consumers";
 import { log } from "console";
-import { getUserByUsername, updateUserData } from "../services/DBService";
+import {
+  getUserByUsername,
+  updateUserData,
+  writeLeaderboard,
+} from "../services/DBService";
 import {
   hitPoints,
   loserPoints,
@@ -47,7 +51,7 @@ export class GameController {
     console.log("playerSkins set", this.playerSkins);
   }
   // shooter name and position
-  shoot(username: string, pos: Position, noSwitch?: boolean) {
+  async shoot(username: string, pos: Position, noSwitch?: boolean) {
     // doTheShooting
     console.log("shoot aufgerufen ", username, pos);
     // returns the board that gets shot at
@@ -62,9 +66,8 @@ export class GameController {
     let enemyBoardOwner = board.boardOwner;
     let hitResult: string | Ship | miniHit = board.checkHit(pos, username);
 
-    let user = this.userObjects.find((u) => {
-      username === u.username;
-    });
+    let user = this.userObjects.find((u) => username === u.username);
+    console.log("shoot user", user, this.userObjects);
     if (!hitResult) throw new Error("No hitResult in shoot");
 
     if (this.isMiniHit(hitResult)) {
@@ -81,7 +84,10 @@ export class GameController {
       } else {
         console.log("mit switch");
         if (hitResult.hit === true) {
-          if (user?.points) user.points += hitPoints;
+          if (user?.points) {
+            user.points += hitPoints;
+            console.log("userpoints ", user.points);
+          }
 
           return this.hitEvent({
             x: hitResult.x,
@@ -120,10 +126,12 @@ export class GameController {
       });
       if (user?.points) user.points += winnerPoints;
       if (loser?.points) loser.points += loserPoints;
-      if (this.userObjects.length != 0)
+      if (this.userObjects.length != 0) {
         this.userObjects.forEach(async (user) => {
           await updateUserData(user);
         });
+         await writeLeaderboard();
+      }
       return this.gameOver({ username: hitResult });
     } else {
     }

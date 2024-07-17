@@ -15,7 +15,11 @@ import {
   shipDestroyedPoints,
   winnerPoints,
 } from "../Resources";
-import { getUserByUsername, updateUserData } from "../services/DBService";
+import {
+  getUserByUsername,
+  updateUserData,
+  writeLeaderboard,
+} from "../services/DBService";
 
 export class TeamGameController {
   playerBoards: Board[];
@@ -137,7 +141,7 @@ export class TeamGameController {
     return this.playersReady;
   }
   // shooter name and position
-  shoot(username: string, pos: Position, teamAgain?: boolean) {
+  async shoot(username: string, pos: Position, teamAgain?: boolean) {
     // doTheShooting
     let teamName = this.team1Names.find((player) => player === username)
       ? Team1Name
@@ -168,24 +172,38 @@ export class TeamGameController {
     let users: UserResource[] = [];
     let losers: UserResource[] = [];
     names.forEach(() => {
-      let user: UserResource | undefined = this.userObjects.find((u) => {
-        username === u.username;
-      });
+      let user: UserResource | undefined = this.userObjects.find(
+        (u) => username === u.username
+      );
       if (user) users.push(user);
     });
     loserNames.forEach(() => {
-      let user: UserResource | undefined = this.userObjects.find((u) => {
-        username === u.username;
-      });
+      let user: UserResource | undefined = this.userObjects.find(
+        (u) => username === u.username
+      );
       if (user) losers.push(user);
     });
+    console.log("team shoot ", users, this.userObjects);
     if (!hitResult) throw new Error("No hitResult in shoot");
     // need to check if already hit
     if (this.isMiniHit(hitResult)) {
+      if (hitResult.hit === true) {
+        if (users) {
+          users.forEach((user) => {
+            console.log("team shoot each user", user);
+
+            if (user?.points) {
+              user.points += hitPoints;
+              console.log("userpoints ", user.points);
+            }
+          });
+        }
+      }
       // hit or miss
       if (this.gameMode === "Team" || teamAgain === true) {
         // bei team niemals switchTO mitschicken sondern wo anders
-        console.log(" im team hitEvent", teamAgain);
+        // console.log(" im team hitEvent", teamAgain);
+
         return this.hitEvent({
           x: hitResult.x,
           y: hitResult.y,
@@ -193,14 +211,8 @@ export class TeamGameController {
           hit: hitResult.hit,
         });
       } else {
-        console.log("kein Team mode");
+        // console.log("kein Team mode");
         if (hitResult.hit === true) {
-          if (users) {
-            users.forEach((user) => {
-              if (user?.points) user.points += hitPoints;
-            });
-          }
-
           return this.hitEvent({
             x: hitResult.x,
             y: hitResult.y,
@@ -251,12 +263,15 @@ export class TeamGameController {
           if (user?.points) user.points += loserPoints;
         });
       }
-      if (this.userObjects.length != 0)
+      if (this.userObjects.length != 0) {
+        console.log("update User points");
         this.userObjects.forEach(async (user) => {
           await updateUserData(user);
         });
+        await writeLeaderboard();
+      }
       logger.debug(" in hitResult string" + JSON.stringify(hitResult));
-      return this.gameOver({ username: hitResult });
+      return this.gameOver({ username: teamName });
     } else {
     }
   }
@@ -300,7 +315,7 @@ export class TeamGameController {
     );
 
     // console.log("detonateMines ", username, board);
-    if (board  && board.mines) {
+    if (board && board.mines) {
       let count = 0;
       for (let mine of board.mines) {
         // console.log("detonateMines ", mine);

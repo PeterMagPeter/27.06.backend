@@ -450,7 +450,7 @@ export async function hostOnlineMatch(
         // Check if room id already exists
         const result = await collection.findOne({ roomId: onlineMatch.roomId });
         if (result !== null) {
-            throw new Error("Room id already in use!");
+            console.log("(Room id already in use!)")
         }
 
         // Check if a password is set
@@ -599,7 +599,9 @@ export async function updateOnlineMatch(onlineMatchResource: OnlineMatchResource
             deleted = true;
         }
         if (!room) {
-            throw new Error("No room found to join!");
+            // throw new Error("No room found to join!");
+            console.log("No room found to join")
+            return false
         }
 
         // Find where to host room
@@ -845,10 +847,10 @@ export async function writeLeaderboard(): Promise<void> {
         await leaderboard.drop();
 
         // Create Leaderboard collection 
-        await db.createCollection("Leaderboard");
+        let newLeaderboard = await db.createCollection("Leaderboard");
 
         // Write leaderboard entries to Leaderboard collection
-        await leaderboard.insertMany(leaderboardEntries);
+        await newLeaderboard.insertMany(leaderboardEntries);
     } catch (error) {
         throw error;
     } finally {

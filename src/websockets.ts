@@ -39,24 +39,20 @@ export function startWebSocketConnection(server: any) {
     console.log("New connection:", socket.id);
 
     socket.on("sendGetUser", async (username: string) => {
-      delete playerBoards[username]
+      delete playerBoards[username];
       let user = await getUserByUsername(username);
       if (user) {
         socket.emit("getUser", user);
       }
     });
     socket.on("sendGetLeaderboard", async () => {
-      await writeLeaderboard()
-        .then(async () => {
-          let leaderboard = await getLeaderboard();
-          if (leaderboard) {
-            console.log(leaderboard);
-            socket.emit("getLeaderboard", leaderboard);
-          }
-        })
-        .catch((error) => {
-          console.error("Failed to initialize gameController:", error);
-        });
+      async () => {
+        let leaderboard = await getLeaderboard();
+        if (leaderboard) {
+          console.log(leaderboard);
+          socket.emit("getLeaderboard", leaderboard);
+        }
+      };
     });
     socket.on("sendChangeSkin", async (username: string, skin: string) => {
       let user = await getUserByUsername(username);
@@ -74,11 +70,13 @@ export function startWebSocketConnection(server: any) {
 
     // join a room/ lobby,
     socket.on("sendJoinRoom", async (roomId: string, username: string) => {
-      socket.join(roomId);
       // an db senden wo und wer joined
       let lobby = await joinOnlineMatch(roomId, username);
-      console.log(`${username} joined room: ${roomId}`, lobby);
-      io.to(roomId).emit("playerJoinedRoom", lobby, username); // players, hostname
+      if (lobby) {
+        socket.join(roomId);
+        console.log(`${username} joined room: ${roomId}`, lobby);
+        io.to(roomId).emit("playerJoinedRoom", lobby, username); // players, hostname}
+      }
     });
 
     // erstellt Lobby ------- need to update this to send it back too all player in room and update it in db
@@ -87,9 +85,9 @@ export function startWebSocketConnection(server: any) {
       // in db lobby erstellen
       let lobby = await hostOnlineMatch(body);
       console.log("created room", JSON.stringify(lobby));
-      io.to(body.roomId).emit("createdRoom");
+      if (lobby) io.to(body.roomId).emit("createdRoom");
       let lobbies = await getPublicOnlinematches();
-      io.emit("getLobbies", lobbies);
+      if (lobbies) io.emit("getLobbies", lobbies);
     });
     socket.on(
       "sendHostUpdatedLobby",
