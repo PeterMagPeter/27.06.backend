@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.startWebSocketConnection = void 0;
+exports.startWebSocketConnection = startWebSocketConnection;
 const socket_io_1 = require("socket.io");
 const GameController_Multiplayer_1 = require("./gamelogic/GameController_Multiplayer");
 const GameController_Playtest_1 = require("./gamelogic/GameController_Playtest");
@@ -29,7 +29,6 @@ function startWebSocketConnection(server) {
     io.on("connection", (socket) => {
         console.log("New connection:", socket.id);
         socket.on("sendGetUser", (username) => __awaiter(this, void 0, void 0, function* () {
-            delete playerBoards[username];
             let user = yield (0, DBService_1.getUserByUsername)(username);
             if (user) {
                 socket.emit("getUser", user);
@@ -196,7 +195,6 @@ function startWebSocketConnection(server) {
         "sendDetonateTorpedo", (roomId, username, startPosition, horizontal) => {
             console.log("sendDetonateTorpedo");
             if (gameControllers.has(roomId)) {
-                io.to(roomId).emit("detonateTorpedo", username);
                 const gameController = gameControllers.get(roomId);
                 gameController.detonateTorpedo(username, startPosition, horizontal);
             }
@@ -206,7 +204,6 @@ function startWebSocketConnection(server) {
         "sendDetonateDrone", (roomId, username, startPosition) => {
             console.log("sendDetonateDrone");
             if (gameControllers.has(roomId)) {
-                io.to(roomId).emit("detonateDrone", username);
                 const gameController = gameControllers.get(roomId);
                 gameController.detonateDrone(username, startPosition);
             }
@@ -411,5 +408,4 @@ function startWebSocketConnection(server) {
         }
     });
 }
-exports.startWebSocketConnection = startWebSocketConnection;
 //# sourceMappingURL=websockets.js.map

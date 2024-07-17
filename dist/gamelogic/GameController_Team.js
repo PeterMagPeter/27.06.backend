@@ -256,7 +256,7 @@ class TeamGameController {
             ? Resources_1.Team1Name
             : Resources_1.Team2Name;
         // returns the board that gets shot at
-        const board = this.playerBoards.find((board) => board.boardOwner === teamName);
+        const board = this.playerBoards.find((board) => board.boardOwner != teamName);
         // console.log("detonateMines ", username, board);
         if (board && board.mines) {
             let count = 0;

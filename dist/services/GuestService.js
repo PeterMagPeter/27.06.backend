@@ -9,7 +9,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteGuest = exports.updateGuest = exports.getGuest = exports.createGuest = void 0;
+exports.createGuest = createGuest;
+exports.getGuest = getGuest;
+exports.updateGuest = updateGuest;
+exports.deleteGuest = deleteGuest;
 const GuestModel_1 = require("../model/GuestModel");
 /**
  * Create guest with data from GuestResource and return created object.
@@ -26,7 +29,6 @@ function createGuest(guestRes) {
         return yield getGuest(guest.id);
     });
 }
-exports.createGuest = createGuest;
 /**
  * Get and return guest by ID.
  * If guest couldn't be found an error is thrown.
@@ -48,7 +50,6 @@ function getGuest(id) {
         };
     });
 }
-exports.getGuest = getGuest;
 /**
  * Identify and update guest by ID with the given GuestResource
  * If no id is provided or guest couldn't be found, an error is thrown.
@@ -75,7 +76,6 @@ function updateGuest(guestRes) {
         }
     });
 }
-exports.updateGuest = updateGuest;
 /**
  * Identify and delete guest by ID.
  * If guest couldn't be found an error is thrown.
@@ -93,5 +93,4 @@ function deleteGuest(id) {
         }
     });
 }
-exports.deleteGuest = deleteGuest;
 //# sourceMappingURL=GuestService.js.map

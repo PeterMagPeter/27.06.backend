@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.configureCORS = void 0;
+exports.configureCORS = configureCORS;
 const cors_1 = __importDefault(require("cors"));
 /**
  * In app.ts aufrufen:
@@ -25,5 +25,4 @@ function configureCORS(app) {
     app.use((0, cors_1.default)(corsOptions));
     app.options('*', (0, cors_1.default)()); // enable pre-flight (request method "options") everywhere, you may want to specify that in detail in production
 }
-exports.configureCORS = configureCORS;
 //# sourceMappingURL=configCORS.js.map
