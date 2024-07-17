@@ -1,5 +1,5 @@
+import { User } from "../model/UserModel"
 import { getUserByMail } from "./DBService";
-import { isCorrectPassword } from "./UserService";
 
 /**
  * Checks name and password. If successful, true is returned, otherwise false
@@ -8,12 +8,19 @@ export async function login(email: string, password: string): Promise<{ id: stri
     // Try to find user in db
     const dbUser = await getUserByMail(email);
 
-    // Check, if user exists, if account is already activated and if credentials are correct
-    if(dbUser !== null && dbUser.verified ){
-        const passwordValid = await isCorrectPassword(email, password);
-        if(passwordValid) {
-            return { id: dbUser?._id.toString() }
-        }
-    } 
-    return false;
+    // Check, if user account is already activated
+    if(dbUser && !dbUser.verified){
+        return false
+    }
+    
+    // Create user (just for use of isCorrectPassword() from user schema)
+    let user;
+    if(dbUser !== null){
+        user = await User.create({...dbUser});
+    }
+
+    // Check password
+    const pwValid = await user?.isCorrectPassword(password);
+    if (!pwValid) return false
+    else return { id: user?.id }
 }

@@ -10,40 +10,30 @@ export class Board {
   identifier: string[]; // all 6 ship identifiers
   playfield: string[][]; // 2d array from playfield with X, O, . , and identifiers
   sunkCounter: number;
-  rows: number;
-  cols: number;
+  columnAmount: number;
   // if all ships are sunken, signal game end
   shipQuantity: number;
-  mines: Position[];
   boardOwner: string;
   roomId: string;
-  shipArray: Ship[] = [];
+
   constructor(
-    rows: number,
-    cols: number,
+    boardSize: number,
     shipQuantity: number,
     boardOwner: string,
     playfield: string[][], // spielfeld mit . und identifier der Schiffe
     ships: Ship[], // die Schiffe die der boardOwner gesetzt hat
-    roomId: string,
-    mines?: Position[]
-  ) {
+    roomId: string  ) {
     // this.ships = new Map<string, Ship>();
     // logger.info("constructor ships " + JSON.stringify(ships));
     this.addShips(ships);
-    this.shipArray = [...ships];
-    this.rows = rows;
-    this.cols = cols;
     this.identifier = ["2a", "2b", "3a", "3b", "4", "5"];
+    this.playfield = [];
     this.sunkCounter = 0;
+    this.columnAmount = boardSize;
     this.shipQuantity = shipQuantity;
-    this.mines = [];
     this.boardOwner = boardOwner;
     this.roomId = roomId;
     this.playfield = playfield;
-    if (mines) {
-      this.mines = mines;
-    }
     for (let i = 0; i < playfield.length; i++) logger.debug(this.playfield[i]);
     logger.debug("------------" + boardOwner + "-------------");
   }
@@ -55,14 +45,13 @@ export class Board {
   ): miniHit | Ship | string {
     let elementAt = this.playfield[shotPosition.y][shotPosition.x];
     logger.debug("- checkHit: elementAt" + elementAt);
-    if (elementAt === "." || elementAt === "O") {
+    if (elementAt === ".") {
       this.playfield[shotPosition.y][shotPosition.x] = "O";
       return { x: shotPosition.x, y: shotPosition.y, hit: false };
-    } else if (elementAt === "X") {
-      let test: any = { Fehler: "auf bestehenden Hit/ Miss geclickt" };
-      logger.error(JSON.stringify(test) + " elementAT " + elementAt),
-        shotPosition;
-      return { x: shotPosition.x, y: shotPosition.y, hit: true };
+    } else if (elementAt === "X" || elementAt === "O") {
+      let test: any = { scheiße: "an die wand" };
+      logger.error(JSON.stringify(test) + " elementAT " + elementAt);
+      return test;
     } else {
       let test: any = { test: "stinkt dieser Tag" }; // DAS WIRD
       // elemtAt ist "X" oder "O"
@@ -116,46 +105,6 @@ export class Board {
       return test;
     }
   }
-  teamCheckHit(shotPosition: Position): miniHit | string {
-    let elementAt = this.playfield[shotPosition.y][shotPosition.x];
-    logger.debug("- teamCheckHit: elementAt " + elementAt);
-    if (elementAt === "." || elementAt === "O") {
-      let minHit: miniHit = {
-        x: shotPosition.x,
-        y: shotPosition.y,
-        hit: false,
-      };
-      return minHit;
-    }
-    return "Hit";
-  }
-  droneCheckHit(shotPosition: Position): miniHit | null {
-    let elementAt = this.playfield[shotPosition.y][shotPosition.x];
-    logger.debug("- droneCheckHit: elementAt " + elementAt);
-    let miniHit: miniHit | null = null;
-    if (!(
-      shotPosition.x >= 0 &&
-      shotPosition.x < this.rows &&
-      shotPosition.y >= 0 &&
-      shotPosition.y < this.cols)
-    ) {
-      return miniHit;
-    }
-    if (elementAt === "." || elementAt === "O") {
-      miniHit = {
-        x: shotPosition.x,
-        y: shotPosition.y,
-        hit: false,
-      };
-    } else {
-      miniHit = {
-        x: shotPosition.x,
-        y: shotPosition.y,
-        hit: true,
-      };
-    }
-    return miniHit;
-  }
 
   // setShipPositions() {
   //   this.ships.forEach((ship) => {
@@ -173,10 +122,6 @@ export class Board {
       // logger.debug(JSON.stringify(ship.identifier));
     }
     // logger.debug("-----adships-------");
-  }
-
-  addMines(mines: Position[]) {
-    this.mines = mines;
   }
 }
 

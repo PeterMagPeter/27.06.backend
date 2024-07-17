@@ -1,8 +1,7 @@
 import express from "express";
 import { createUserAccount_UserService, deleteUser_UserService, getAllUsers_UserService, getUser_UserService, updateUser_UserService } from "../services/UserService";
-import { UserResource, RegisterResource } from "../Resources";
+import { UserResource } from "../Resources";
 import { body, matchedData, param, validationResult } from "express-validator";
-import { ObjectId } from "mongodb";
 
 export const userRouter = express.Router();
 
@@ -36,24 +35,6 @@ userRouter.delete("/all", async (_req, res, _next) => {
   res.sendStatus(404);
 })
 
-/**
- * @swagger
- * /api/user/all:
- *   get:
- *     summary: Sends all users (getAllUsers_UserService() ignores to send email addresses)
- *     tags: [User]
- *     responses:
- *       200:
- *         description: A list of users
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/User'
- *       404:
- *         description: No users found
- */
 /** 
  * Sends all users (getAlleUser() ignores to send email adresses)
  */
@@ -62,41 +43,19 @@ userRouter.get("/all", async (_req, res, _next) => {
   res.send(allUsers);
 })
 
-/**
- * @swagger
- * /api/user/{_id}:
- *   delete:
- *     summary: Deletes a single user
- *     tags: [User]
- *     parameters:
- *       - in: path
- *         name: _id
- *         schema:
- *           type: ObjectId
- *           format: uuid
- *         required: true
- *         description: The user id
- *     responses:
- *       204:
- *         description: The user was successfully deleted
- *       400:
- *         description: Validation errors
- *       404:
- *         description: The user was not found
- */
 /** 
  * Delets a single user
  */
-userRouter.delete("/:_id",
-  param("_id").isMongoId(),
+userRouter.delete("/:id",
+  param("id").isMongoId(),
   async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    const id = req.params!._id;
+    const id = req.params!.id;
     try {
-      await deleteUser_UserService(new ObjectId(id));
+      await deleteUser_UserService(id);
       res.sendStatus(204);
     } catch (error) {
       res.status(404);
@@ -105,54 +64,6 @@ userRouter.delete("/:_id",
   }
 )
 
-/**
- * @swagger
- * /api/user:
- *   post:
- *     summary: Creates a single user if data is valid (NOCH ZU ÄNDERN!!!)
- *     tags: [User]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               email:
- *                 type: string
- *                 format: email
- *                 minLength: 1
- *                 maxLength: 100
- *               password:
- *                 type: string
- *                 minLength: 8
- *                 maxLength: 100
- *               username:
- *                 type: string
- *                 minLength: 3
- *                 maxLength: 30
- *               points:
- *                 type: integer
- *                 minimum: 0
- *                 maximum: 1000000
- *               premium:
- *                 type: boolean
- *               level:
- *                 type: integer
- *                 minimum: 1
- *                 maximum: 1000
- *               gameSound:
- *                 type: number
- *               music:
- *                 type: number
- *               higherLvlChallenge:
- *                 type: boolean
- *     responses:
- *       201:
- *         description: The user was successfully created
- *       400:
- *         description: Validation errors or duplicate user
- */
 /** 
  * Creates a single user if data is valid
  */
@@ -160,16 +71,21 @@ userRouter.post("/",
   body("email").isString().isEmail().isLength({ min: 1, max: 100 }),
   body("password").isString().isLength({ min: PW_MIN_LENGTH, max: PW_MAX_LENGTH }).isStrongPassword(),
   body("username").isString().isLength({ min: NAME_MIN_LENGTH, max: NAME_MAX_LENGTH }),
+  body("points").optional().isNumeric().isInt({ min: POINTS_MIN, max: POINTS_MAX }),
+  body("premium").optional().isBoolean(),
+  body("level").optional().isNumeric().isInt({ min: LVL_MIN, max: LVL_MAX }),
+  body("gameSound").optional().isBoolean(),
+  body("music").optional().isBoolean(),
+  body("higherLvlChallenge").optional().isBoolean(),
 
   async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    const userData = matchedData(req) as RegisterResource;
+    const userData = matchedData(req) as UserResource;
     try {
       // Create user with schema & write it into the db
-      console.log("wird angelegt")
       const user = await createUserAccount_UserService(userData);  
       res.status(201).send(user);
       return;   // To prevent function continues in catch-block, when everything was fine.
@@ -201,65 +117,17 @@ userRouter.post("/",
   }
 )
 
-/**
- * @swagger
- * /api/user/{_id}:
- *   put:
- *     summary: Updates the properties of a user
- *     tags: [User]
- *     parameters:
- *       - in: path
- *         name: _id
- *         schema:
- *           type: ObjectId
- *           format: uuid
- *         required: true
- *         description: The user id
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               id:
- *                 type: string
- *                 format: uuid
- *               email:
- *                 type: string
- *                 minLength: 1
- *                 maxLength: 100
- *               password:
- *                 type: string
- *                 minLength: 8
- *                 maxLength: 100
- *               premium:
- *                 type: boolean
- *               gameSound:
- *                 type: number
- *               music:
- *                 type: number
- *               higherLvlChallenge:
- *                 type: boolean
- *     responses:
- *       200:
- *         description: The user was successfully updated
- *       400:
- *         description: Validation errors
- *       404:
- *         description: The user was not found
- */
 /** 
  * Updates the properties of a user  
  */
-userRouter.put("/:_id",
-  param("_id").isMongoId(),
-  body("_id").isMongoId(),
+userRouter.put("/:id",
+  param("id").isMongoId(),
+  body("id").isMongoId(),
   body("email").optional().isString().isLength({ min: 1, max: 100 }),
   body("password").optional().isString().isLength({ min: PW_MIN_LENGTH, max: PW_MAX_LENGTH }).isStrongPassword(),
   body("premium").optional().isBoolean(),
-  body("gameSound").optional().isNumeric(),
-  body("music").optional().isNumeric(),
+  body("gameSound").optional().isBoolean(),
+  body("music").optional().isBoolean(),
   body("higherLvlChallenge").optional().isBoolean(),
 
   async (req, res, next) => {
@@ -267,12 +135,12 @@ userRouter.put("/:_id",
     if (!errors.isEmpty()) {
       return res.status(400).send({ errors: errors.array() });
     }
-    const id = new ObjectId(req.params!._id);
+    const id = req.params!.id;
     const userData = matchedData(req) as UserResource;
-    if (id !== userData._id) {
+    if (id !== userData.id) {
       return res.status(400).send({
-        errors: [{ "location": "params", "path": "_id" },
-        { "location": "body", "path": "_id" }]
+        errors: [{ "location": "params", "path": "id" },
+        { "location": "body", "path": "id" }]
       });
     }
     try {
@@ -306,40 +174,14 @@ userRouter.put("/:_id",
   }
 )
 
-/**
-* @swagger
-* /api/user/{_id}:
-*   get:
-*     summary: Sends a single user
-*     tags: [User]
-*     parameters:
-*       - in: path
-*         name: _id
-*         schema:
-*           type: string
-*           format: uuid
-*         required: true
-*         description: The user id
-*     responses:
-*       200:
-*         description: The user was successfully retrieved
-*       404:
-*         description: The user was not found
-*/
-
 /** 
  * Sends a single user.  
  */
-userRouter.get("/:_id",
-  param("_id").isMongoId(),
+userRouter.get("/:id", 
   async (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-    const id = req.params!._id;
   try {
-    const user = await getUser_UserService(new ObjectId(id));
+    const id = req.params.id;
+    const user = await getUser_UserService(id);
     res.send(user);
   } catch (error) {
     res.sendStatus(404);

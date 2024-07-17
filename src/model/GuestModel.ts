@@ -10,7 +10,6 @@ export interface IGuest{
     level?: number,
     gameSound?: number,
     music?: number,
-    skin: string
 };
 
 // Guest schema
@@ -21,7 +20,6 @@ const guestSchema = new Schema<IGuest, GuestModel>({
     level: {type: Number, default: 1},
     gameSound: {type: Number, default: 0.3},
     music: {type: Number, default: 0.3},
-    skin: {type: String, default: "standard"}
 });
 
 export const Guest = model("Guest", guestSchema);

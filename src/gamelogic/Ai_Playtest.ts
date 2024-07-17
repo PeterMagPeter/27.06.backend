@@ -151,8 +151,7 @@ export class Ai_Playtest {
     this.testArray = Array.from({ length: 10 }, () => Array(10).fill(0));
     this.playerBoard = playerBoard;
     this.aiBoard = new Board(
-     playerBoard.rows,
-     playerBoard.cols,
+      10,
       6,
       "Ai",
       this.initializeBoard(),
@@ -241,7 +240,7 @@ export class Ai_Playtest {
         if (checkHitResult instanceof Ship) {
           // wenn destroyed entferne es aus dem idenifierCopy und setzt das aktuelle target wieder auf ""
           const index = this.identifierCopy.findIndex((t) => {
-            // console.log("Comparing:", t, "with", id);
+            console.log("Comparing:", t, "with", id);
             return t === id;
           });
           if (index !== -1) {
@@ -291,25 +290,25 @@ export class Ai_Playtest {
     if (checkHitResult instanceof Ship) {
       for (let pos of checkHitResult.initialPositions) {
         const index = this.currentHits.findIndex((t) => {
-          // console.log(
-          //   "Comparing:",
-          //   JSON.stringify(t),
-          //   "with",
-          //   JSON.stringify(pos)
-          // );
+          console.log(
+            "Comparing:",
+            JSON.stringify(t),
+            "with",
+            JSON.stringify(pos)
+          );
           return t.x === pos.x && t.y === pos.y;
         });
         if (index !== -1) {
           this.currentHits.splice(index, 1);
         }
         const index2 = this.hitsAndMisses.findIndex((t) => {
-          // console.log("Comparing:", JSON.stringify(t), "with", JSON.stringify(pos));
+          console.log("Comparing:", JSON.stringify(t), "with", JSON.stringify(pos));
           return t.x === pos.x && t.y === pos.y;
         });
-
+      
         // Wenn die Position nicht in hitsAndMisses gefunden wurde, hinzufügen
         if (index2 === -1) {
-          let tmp = { x: pos.x, y: pos.y, hit: true };
+          let tmp = {x: pos.x, y: pos.y, hit: true}
           this.hitsAndMisses.push(tmp);
         }
       }

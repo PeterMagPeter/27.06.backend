@@ -1,5 +1,5 @@
 import express from "express";
-import { createGuest, deleteGuest, getGuest, updateGuest } from "../services/GuestService";
+import { createGuest, deleteGuest,  getGuest, updateGuest } from "../services/GuestService";
 import { GuestResource } from "../Resources";
 import { body, matchedData, param, validationResult } from "express-validator";
 
@@ -41,30 +41,11 @@ guestRouter.get("/all", async (_req, res, _next) => {
   res.sendStatus(404);
 })
 
-/**
- * @swagger
- * /api/guest/{id}:
- *   delete:
- *     summary: Deletes a single guest
- *     tags: [Guest]
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: string
- *           format: uuid
- *         required: true
- *         description: The guest id
- *     responses:
- *       204:
- *         description: The guest was successfully deleted
- *       400:
- *         description: Validation errors
- *       404:
- *         description: The guest was not found
+/** 
+ * Delets a single guest
  */
-guestRouter.delete("/:_id",
-  param("_id").isMongoId(),
+guestRouter.delete("/:id",
+  param("id").isMongoId(),
   async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -81,47 +62,15 @@ guestRouter.delete("/:_id",
   }
 )
 
-/**
- * @swagger
- * /api/guest:
- *   post:
- *     summary: Creates a single guest if data is valid
- *     tags: [Guest]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               username:
- *                 type: string
- *                 minLength: 3
- *                 maxLength: 30
- *               points:
- *                 type: integer
- *                 minimum: 0
- *                 maximum: 1000000
- *               level:
- *                 type: integer
- *                 minimum: 1
- *                 maximum: 1000
- *               gameSound:
- *                 type: number
- *               music:
- *                 type: number
- *     responses:
- *       201:
- *         description: The guest was successfully created
- *       400:
- *         description: Validation errors or duplicate user
+/** 
+ * Creates a single guest if data is valid
  */
 guestRouter.post("/",
   body("username").isString().isLength({ min: NAME_MIN_LENGTH, max: NAME_MAX_LENGTH }),
   body("points").optional().isNumeric().isInt({ min: POINTS_MIN, max: POINTS_MAX }),
   body("level").optional().isNumeric().isInt({ min: LVL_MIN, max: LVL_MAX }),
-  body("gameSound").optional().isNumeric(),
-  body("music").optional().isNumeric(),
+  body("gameSound").optional().isBoolean(),
+  body("music").optional().isBoolean(),
 
   async (req, res, next) => {
     const errors = validationResult(req);
@@ -141,7 +90,7 @@ guestRouter.post("/",
             location: "body",
             msg: "User with that name already exists!",
             path: "username",
-            value: guestData.username
+            value: "guestData.username"
           }]
         })
       }
@@ -151,59 +100,16 @@ guestRouter.post("/",
   }
 )
 
-/**
- * @swagger
- * /api/guest/{id}:
- *   put:
- *     summary: Updates the properties of a guest
- *     tags: [Guest]
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: string
- *           format: uuid
- *         required: true
- *         description: The guest id
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               id:
- *                 type: string
- *                 format: uuid
- *               points:
- *                 type: integer
- *                 minimum: 0
- *                 maximum: 1000000
- *               level:
- *                 type: integer
- *                 minimum: 1
- *                 maximum: 1000
- *               gameSound:
- *                 type: number
- *               music:
- *                 type: number
- *               higherLvlChallenge:
- *                 type: boolean
- *     responses:
- *       200:
- *         description: The guest was successfully updated
- *       400:
- *         description: Validation errors
- *       404:
- *         description: The guest was not found
+/** 
+ * Updates the properties of a guest  
  */
-guestRouter.put("/:_id",
-  param("_id").isMongoId(),
-  body("_id").isMongoId(),
+guestRouter.put("/:id",
+  param("id").isMongoId(),
+  body("id").isMongoId(),
   body("points").optional().isNumeric().isInt({ min: POINTS_MIN, max: POINTS_MAX }),
   body("level").optional().isNumeric().isInt({ min: LVL_MIN, max: LVL_MAX }),
-  body("gameSound").optional().isNumeric(),
-  body("music").optional().isNumeric(),
+  body("gameSound").optional().isBoolean(),
+  body("music").optional().isBoolean(),
   body("higherLvlChallenge").optional().isBoolean(),
 
   async (req, res, next) => {
@@ -215,8 +121,8 @@ guestRouter.put("/:_id",
     const guestData = matchedData(req) as GuestResource;
     if (id !== guestData.id) {
       return res.status(400).send({
-        errors: [{ "location": "params", "path": "_id" },
-        { "location": "body", "path": "_id" }]
+        errors: [{ "location": "params", "path": "id" },
+        { "location": "body", "path": "id" }]
       });
     }
     try {
@@ -229,30 +135,13 @@ guestRouter.put("/:_id",
   }
 )
 
-/**
- * @swagger
- * /api/guest/{id}:
- *   get:
- *     summary: Sends a single guest
- *     tags: [Guest]
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: string
- *           format: uuid
- *         required: true
- *         description: The guest id
- *     responses:
- *       200:
- *         description: The guest was successfully retrieved
- *       404:
- *         description: The guest was not found
+/** 
+ * Sends a single guest.  
  */
-guestRouter.get("/:_id", 
+guestRouter.get("/:id", 
   async (req, res, next) => {
   try {
-    const id = req.params._id;
+    const id = req.params.id;
     const guest = await getGuest(id);
     res.send(guest);
   } catch (error) {
@@ -260,5 +149,3 @@ guestRouter.get("/:_id",
     next(error);
   }
 })
-
-export default guestRouter;

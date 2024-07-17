@@ -1,8 +1,6 @@
 import express from 'express';
 import "express-async-errors"; // needs to be imported before routers and other stuff!
 
-import swaggerUi from 'swagger-ui-express';
-import swaggerDocs from './swaggerConfig';
 // Import of login router
 import { loginRouter } from './routes/login';
 
@@ -20,7 +18,6 @@ app.use('*', express.json());
 app.use(cookieParser());
 
 // Routes
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs)); // Swagger setup
 app.use("/api/login", loginRouter);
 app.use("/api/user", userRouter);
 app.use("/api/guest", guestRouter);
