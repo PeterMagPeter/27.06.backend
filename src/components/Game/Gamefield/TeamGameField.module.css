@@ -1,0 +1,318 @@
+.container {
+  display: grid;
+  grid-template-columns: 0.5fr 1fr 1fr 1fr 0.3fr 1fr 0.5fr;
+  grid-template-rows: 1fr 1fr 1fr 0.5fr;
+  gap: 0px 0px;
+  grid-auto-flow: row;
+  grid-template-areas:
+    ". GameField GameField whosTurn whosTurn Logo ."
+    ". GameField GameField . Ownboard Ownboard ."
+    ". GameField GameField . Ownboard Ownboard ."
+    ". SuperWeapons SuperWeapons Shoot . Emotes . ";
+  /* min-width: 100vw; */
+  max-width: 100vw !important;
+  min-height: 100vh;
+  max-height: 100vh !important;
+  background-image: url("../../../assets/pictures/background.jpg");
+  background-size: cover;
+  overflow-x: visible;
+}
+.whosTurn {
+  color: #ffffff;
+  overflow: hidden;
+  font-size: 300%;
+  font-weight: 900;
+  grid-area: whosTurn;
+  -webkit-text-stroke-width: 2px; /* Breite des Umrisses */
+  -webkit-text-stroke-color: black; /* Farbe des Umrisses */
+  justify-self: center;
+  align-self: center;
+}
+.playerName {
+  text-decoration: none;
+  color: rgb(87, 199, 199);
+}
+.Logo {
+  grid-area: Logo;
+  max-width: 60%;
+  align-self: center;
+  justify-self: center;
+}
+.Ownboard {
+  grid-area: Ownboard;
+  /* max-width: 80%; */
+  /* min-width: 100%; */
+  /* max-height: 80%; */
+  /* min-height: 100%; */
+  display: grid;
+  grid-template-columns: 0.3fr repeat(10, 1fr);
+  grid-template-rows: 0.3fr repeat(10, 1fr);
+  gap: 0px 0px;
+  grid-auto-flow: row;
+  grid-template-areas:
+    ". AE BE CE   DE   EE   FE   GE   HE   IE   JE   KE   LE   ME   NE   OE   PE   QE   RE   SE   TE"
+    "NO1E  A1E  B1E  C1E  D1E  E1E  F1E  G1E  H1E  I1E  J1E  K1E  L1E  M1E  N1E  O1E  P1E  Q1E  R1E  S1E  T1E"
+    "NO2E  A2E  B2E  C2E  D2E  E2E  F2E  G2E  H2E  I2E  J2E  K2E  L2E  M2E  N2E  O2E  P2E  Q2E  R2E  S2E  T2E"
+    "NO3E  A3E  B3E  C3E  D3E  E3E  F3E  G3E  H3E  I3E  J3E  K3E  L3E  M3E  N3E  O3E  P3E  Q3E  R3E  S3E  T3E"
+    "NO4E  A4E  B4E  C4E  D4E  E4E  F4E  G4E  H4E  I4E  J4E  K4E  L4E  M4E  N4E  O4E  P4E  Q4E  R4E  S4E  T4E"
+    "NO5E  A5E  B5E  C5E  D5E  E5E  F5E  G5E  H5E  I5E  J5E  K5E  L5E  M5E  N5E  O5E  P5E  Q5E  R5E  S5E  T5E"
+    "NO6E  A6E  B6E  C6E  D6E  E6E  F6E  G6E  H6E  I6E  J6E  K6E  L6E  M6E  N6E  O6E  P6E  Q6E  R6E  S6E  T6E"
+    "NO7E  A7E  B7E  C7E  D7E  E7E  F7E  G7E  H7E  I7E  J7E  K7E  L7E  M7E  N7E  O7E  P7E  Q7E  R7E  S7E  T7E"
+    "NO8E  A8E  B8E  C8E  D8E  E8E  F8E  G8E  H8E  I8E  J8E  K8E  L8E  M8E  N8E  O8E  P8E  Q8E  R8E  S8E  T8E"
+    "NO9E  A9E  B9E  C9E  D9E  E9E  F9E  G9E  H9E  I9E  J9E  K9E  L9E  M9E  N9E  O9E  P9E  Q9E  R9E  S9E  T9E"
+    "NO10E A10E B10E C10E D10E E10E F10E G10E H10E I10E J10E K10E L10E M10E N10E O10E P10E Q10E R10E S10E T10E"
+    "NO11E A11E B11E C11E D11E E11E F11E G11E H11E I11E J11E K11E L11E M11E N11E O11E P11E Q11E R11E S11E T11E"
+    "NO12E A12E B12E C12E D12E E12E F12E G12E H12E I12E J12E K12E L12E M12E N12E O12E P12E Q12E R12E S12E T12E"
+    "NO13E A13E B13E C13E D13E E13E F13E G13E H13E I13E J13E K13E L13E M13E N13E O13E P13E Q13E R13E S13E T13E"
+    "NO14E A14E B14E C14E D14E E14E F14E G14E H14E I14E J14E K14E L14E M14E N14E O14E P14E Q14E R14E S14E T14E"
+    "NO15E A15E B15E C15E D15E E15E F15E G15E H15E I15E J15E K15E L15E M15E N15E O15E P15E Q15E R15E S15E T15E"
+    "NO16E A16E B16E C16E D16E E16E F16E G16E H16E I16E J16E K16E L16E M16E N16E O16E P16E Q16E R16E S16E T16E"
+    "NO17E A17E B17E C17E D17E E17E F17E G17E H17E I17E J17E K17E L17E M17E N17E O17E P17E Q17E R17E S17E T17E"
+    "NO18E A18E B18E C18E D18E E18E F18E G18E H18E I18E J18E K18E L18E M18E N18E O18E P18E Q18E R18E S18E T18E"
+    "NO19E A19E B19E C19E D19E E19E F19E G19E H19E I19E J19E K19E L19E M19E N19E O19E P19E Q19E R19E S19E T19E"
+    "NO20E A20E B20E C20E D20E E20E F20E G20E H20E I20E J20E K20E L20E M20E N20E O20E P20E Q20E R20E S20E T20E";
+  /* justify-content: space-evenly;
+  align-content: space-between; */
+  align-self: center;
+  scale: 95%;
+  aspect-ratio: 1/1;
+}
+.newElement {
+  grid-column: 2 / 7; /* Startet am Anfang von Spalte A1 und endet vor Spalte D1 */
+  grid-row: 4/5; /* Setzt die Zeile auf 4 und endet vor Zeile 11, um drei Felder nach oben zu verschieben */
+  background-color: #ff0000; /* Optional: Fügt eine Hintergrundfarbe hinzu, um das Element sichtbar zu machen */
+  z-index: 10; /* Stellt sicher, dass das Element über den vorhandenen Buttons liegt */
+}
+.miniContainer {
+  max-width: 100%;
+  max-height: 100%;
+  z-index: 10;
+  /* background-color: #ff0000; */
+}
+.miniImagesW {
+  max-width: 100%;
+  min-width: 100%;
+  min-height: 100%;
+}
+.miniImagesH {
+  max-width: 100%;
+}
+
+.Emotes {
+  grid-area: Emotes;
+  justify-self: stretch;
+  margin: 20%;
+}
+.Shoot {
+  grid-area: Shoot;
+  justify-self: stretch;
+  margin: 20%;
+}
+.GameField {
+  grid-area: GameField;
+  max-width: 80%;
+  min-width: 80%;
+  max-height: 100%;
+  min-height: 100%;
+  display: grid;
+  grid-template-columns: 0.3fr repeat(10, 1fr);
+  grid-template-rows: 0.1fr repeat(10, 1fr);
+  gap: 0px 0px;
+  grid-auto-flow: row;
+  grid-template-areas:
+    ". A B C D E F G H I J K L M N O P Q R S T"
+    " NO1 A1 B1 C1 D1 E1 F1 G1 H1 I1 J1 K1 L1 M1 N1 O1 P1 Q1 R1 S1 T1"
+    " NO2 A2 B2 C2 D2 E2 F2 G2 H2 I2 J2 K2 L2 M2 N2 O2 P2 Q2 R2 S2 T2"
+    " NO3 A3 B3 C3 D3 E3 F3 G3 H3 I3 J3 K3 L3 M3 N3 O3 P3 Q3 R3 S3 T3"
+    " NO4 A4 B4 C4 D4 E4 F4 G4 H4 I4 J4 K4 L4 M4 N4 O4 P4 Q4 R4 S4 T4"
+    " NO5 A5 B5 C5 D5 E5 F5 G5 H5 I5 J5 K5 L5 M5 N5 O5 P5 Q5 R5 S5 T5"
+    " NO6 A6 B6 C6 D6 E6 F6 G6 H6 I6 J6 K6 L6 M6 N6 O6 P6 Q6 R6 S6 T6"
+    " NO7 A7 B7 C7 D7 E7 F7 G7 H7 I7 J7 K7 L7 M7 N7 O7 P7 Q7 R7 S7 T7"
+    " NO8 A8 B8 C8 D8 E8 F8 G8 H8 I8 J8 K8 L8 M8 N8 O8 P8 Q8 R8 S8 T8"
+    " NO9 A9 B9 C9 D9 E9 F9 G9 H9 I9 J9 K9 L9 M9 N9 O9 P9 Q9 R9 S9 T9"
+    " NO10 A10 B10 C10 D10 E10 F10 G10 H10 I10 J10 K10 L10 M10 N10 O10 P10 Q10 R10 S10 T10"
+    " NO11 A11 B11 C11 D11 E11 F11 G11 H11 I11 J11 K11 L11 M11 N11 O11 P11 Q11 R11 S11 T11"
+    " NO12 A12 B12 C12 D12 E12 F12 G12 H12 I12 J12 K12 L12 M12 N12 O12 P12 Q12 R12 S12 T12"
+    " NO13 A13 B13 C13 D13 E13 F13 G13 H13 I13 J13 K13 L13 M13 N13 O13 P13 Q13 R13 S13 T13"
+    " NO14 A14 B14 C14 D14 E14 F14 G14 H14 I14 J14 K14 L14 M14 N14 O14 P14 Q14 R14 S14 T14"
+    " NO15 A15 B15 C15 D15 E15 F15 G15 H15 I15 J15 K15 L15 M15 N15 O15 P15 Q15 R15 S15 T15"
+    " NO16 A16 B16 C16 D16 E16 F16 G16 H16 I16 J16 K16 L16 M16 N16 O16 P16 Q16 R16 S16 T16"
+    " NO17 A17 B17 C17 D17 E17 F17 G17 H17 I17 J17 K17 L17 M17 N17 O17 P17 Q17 R17 S17 T17"
+    " NO18 A18 B18 C18 D18 E18 F18 G18 H18 I18 J18 K18 L18 M18 N18 O18 P18 Q18 R18 S18 T18"
+    " NO19 A19 B19 C19 D19 E19 F19 G19 H19 I19 J19 K19 L19 M19 N19 O19 P19 Q19 R19 S19 T19"
+    " NO20 A20 B20 C20 D20 E20 F20 G20 H20 I20 J20 K20 L20 M20 N20 O20 P20 Q20 R20 S20 T20";
+  justify-self: center;
+  align-self: center;
+  scale: 100%;
+  aspect-ratio: 1/1;
+}
+
+.Hit,
+.Miss,
+.Destroyed,
+.button,
+.buttonE,
+.selected, .selectedE, .test, .teamMateSelected {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 0px;
+  color: #000000;
+  overflow: hidden;
+  font-size: 200%;
+  z-index: 0;
+}
+.Hit {
+  background-color: rgba(235, 134, 19, 0.708);
+}
+.Miss {
+  background-color: rgba(32, 32, 32, 0.605);
+}
+.Destroyed {
+  background-color: rgba(158, 0, 0, 0.605);
+}
+.button {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+.test {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+.selected {
+  background: radial-gradient(
+    circle,
+    rgba(11, 130, 0, 0.5),
+    rgba(0, 255, 55, 0.5)
+  );
+  border-color: radial-gradient(circle, red, blue);
+}
+.selectedE {
+  background: radial-gradient(
+    circle,
+    rgba(130, 17, 0, 0.5),
+    rgba(255, 30, 0, 0.5)
+  );
+  border-color: radial-gradient(circle, red, blue);
+}
+.teamMateSelected {
+  background: radial-gradient(
+    circle,
+    rgba(0, 119, 130, 0.5),
+    rgba(0, 204, 255, 0.5)
+  );
+  border-color: radial-gradient(circle, red, blue);
+}
+.buttonE {
+  background-color: rgba(132, 146, 255, 0.4);
+}
+.button::before {
+  filter: blur(2px);
+}
+
+.button:hover {
+  background-color: rgba(255, 255, 255, 0.7);
+}
+.modalText {
+  align-self: center;
+  overflow: hidden;
+  font-size: 200%;
+}
+.NO1,
+.NO2,
+.NO3,
+.NO4,
+.NO5,
+.NO6,
+.NO7,
+.NO8,
+.NO9,
+.NO10,
+.NO11,
+.NO12,
+.NO13,
+.NO14,
+.NO15,
+.NO16,
+.NO17,
+.NO18,
+.NO19,
+.NO20,
+.A,
+.B,
+.C,
+.D,
+.E,
+.F,
+.G,
+.H,
+.I,
+.J,
+.K,
+.L,
+.M,
+.N,
+.O,
+.P,
+.Q,
+.R,
+.S,
+.T {
+  font-weight: 800;
+  text-align: end;
+  align-self: end;
+  justify-self: center;
+  font-size: 200%;
+  color: #ffffff;
+  -webkit-text-stroke-width: 2px; /* Breite des Umrisses */
+  -webkit-text-stroke-color: black; /* Farbe des Umrisses */
+  /* margin-top: 20%; */
+}
+.NO1E,
+.NO2E,
+.NO3E,
+.NO4E,
+.NO5E,
+.NO6E,
+.NO7E,
+.NO8E,
+.NO9E,
+.NO10E,
+.NO11E,
+.NO12E,
+.NO13E,
+.NO14E,
+.NO15E,
+.NO16E,
+.NO17E,
+.NO18E,
+.NO19E,
+.NO20E,
+.AE,
+.BE,
+.CE,
+.DE,
+.EE,
+.FE,
+.GE,
+.HE,
+.IE,
+.JE,
+.KE,
+.LE,
+.ME,
+.NE,
+.OE,
+.PE,
+.QE,
+.RE,
+.SE,
+.TE {
+  font-weight: 800;
+  text-align: center;
+  align-self: center;
+  justify-self: center;
+  font-size: auto;
+  color: #ffffff;
+  -webkit-text-stroke-width: 1px; /* Breite des Umrisses */
+  -webkit-text-stroke-color: black; /* Farbe des Umrisses */
+}
+/* Define grid areas ChatGPT */

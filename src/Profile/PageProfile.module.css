@@ -1,0 +1,112 @@
+.profilePage {
+    background-image: url("../assets/pictures/background.jpg");
+    background-size: cover;
+    background-position: center;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: white;
+    text-align: center;
+}
+
+.profileDiv {
+    width: 80vw;
+    margin-top: 10vh;
+    align-items: center;
+    padding: 30px;
+    background-color: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(2px);
+    border-radius: 10px;
+}
+
+.profileImg {
+    width: 120px;
+}
+
+.settingsImg {
+    width: 180px;
+}
+
+.settingsImg:hover {
+    cursor: pointer;
+}
+
+.profileText {
+    font-size: 1.2rem;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+.settingsButton {
+    background-color: rgba(255, 255, 255, 0.6);
+    color: rgb(51, 51, 51);
+}
+
+.logoutButton {
+    background-color: rgba(0, 0, 0, 0.4);
+    color: white;
+}
+
+.settingsButton,
+.logoutButton {
+    margin-inline: 15px;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    border-radius: 5px;
+    border: none;
+    width: 15vw;
+    min-width: fit-content;
+    max-width: 100px;
+    height: 4vh;
+    max-height: 50px;
+    padding-inline: 10px;
+    /* color: rgba(0, 0, 0, 0.7); */
+}
+
+.settingsButton:hover {
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+.logoutButton:hover {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.inputField {
+    background-color: rgba(0, 0, 0, 0.225);
+    margin-bottom: 5px;
+    border: none;
+    height: 45px;
+    min-width: 280px;
+    color: white;
+    border-radius: 6px;
+    padding-left: 10px;
+}
+
+.inputField:last-of-type {
+    margin-bottom: 15px;
+}
+
+.inputField:first-of-type {
+    margin-top: 15px;
+}
+
+.inputField::placeholder {
+    color: white;
+}
+
+.inputField:focus {
+    background-color: rgba(0, 0, 0, 0.35);
+}
+
+.skinSelect {
+    margin: 5px;
+    margin-top: 20px;
+    margin-bottom: 50px;
+    background-color: rgba(255, 255, 255, 0.6);
+    height: 30px;
+    border-radius: 5px;
+}
+
+.skinImg{
+    max-width: 200px;
+}
