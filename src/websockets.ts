@@ -39,20 +39,23 @@ export function startWebSocketConnection(server: any) {
     console.log("New connection:", socket.id);
 
     socket.on("sendGetUser", async (username: string) => {
-      delete playerBoards[username];
       let user = await getUserByUsername(username);
       if (user) {
         socket.emit("getUser", user);
       }
     });
     socket.on("sendGetLeaderboard", async () => {
-      async () => {
-        let leaderboard = await getLeaderboard();
-        if (leaderboard) {
-          console.log(leaderboard);
-          socket.emit("getLeaderboard", leaderboard);
-        }
-      };
+      await writeLeaderboard()
+        .then(async () => {
+          let leaderboard = await getLeaderboard();
+          if (leaderboard) {
+            console.log(leaderboard);
+            socket.emit("getLeaderboard", leaderboard);
+          }
+        })
+        .catch((error) => {
+          console.error("Failed to initialize gameController:", error);
+        });
     });
     socket.on("sendChangeSkin", async (username: string, skin: string) => {
       let user = await getUserByUsername(username);
@@ -70,13 +73,11 @@ export function startWebSocketConnection(server: any) {
 
     // join a room/ lobby,
     socket.on("sendJoinRoom", async (roomId: string, username: string) => {
+      socket.join(roomId);
       // an db senden wo und wer joined
       let lobby = await joinOnlineMatch(roomId, username);
-      if (lobby) {
-        socket.join(roomId);
-        console.log(`${username} joined room: ${roomId}`, lobby);
-        io.to(roomId).emit("playerJoinedRoom", lobby, username); // players, hostname}
-      }
+      console.log(`${username} joined room: ${roomId}`, lobby);
+      io.to(roomId).emit("playerJoinedRoom", lobby, username); // players, hostname
     });
 
     // erstellt Lobby ------- need to update this to send it back too all player in room and update it in db
@@ -85,9 +86,9 @@ export function startWebSocketConnection(server: any) {
       // in db lobby erstellen
       let lobby = await hostOnlineMatch(body);
       console.log("created room", JSON.stringify(lobby));
-      if (lobby) io.to(body.roomId).emit("createdRoom");
+      io.to(body.roomId).emit("createdRoom");
       let lobbies = await getPublicOnlinematches();
-      if (lobbies) io.emit("getLobbies", lobbies);
+      io.emit("getLobbies", lobbies);
     });
     socket.on(
       "sendHostUpdatedLobby",
@@ -280,7 +281,6 @@ export function startWebSocketConnection(server: any) {
       ) => {
         console.log("sendDetonateTorpedo");
         if (gameControllers.has(roomId)) {
-          io.to(roomId).emit("detonateTorpedo", username);
           const gameController = gameControllers.get(roomId);
           gameController.detonateTorpedo(username, startPosition, horizontal);
         }
@@ -292,7 +292,6 @@ export function startWebSocketConnection(server: any) {
       (roomId: string, username: string, startPosition: Position) => {
         console.log("sendDetonateDrone");
         if (gameControllers.has(roomId)) {
-          io.to(roomId).emit("detonateDrone", username);
           const gameController = gameControllers.get(roomId);
           gameController.detonateDrone(username, startPosition);
         }

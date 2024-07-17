@@ -51,7 +51,7 @@ export class GameController {
     console.log("playerSkins set", this.playerSkins);
   }
   // shooter name and position
-  async shoot(username: string, pos: Position, noSwitch?: boolean) {
+  shoot(username: string, pos: Position, noSwitch?: boolean) {
     // doTheShooting
     console.log("shoot aufgerufen ", username, pos);
     // returns the board that gets shot at
@@ -130,7 +130,7 @@ export class GameController {
         this.userObjects.forEach(async (user) => {
           await updateUserData(user);
         });
-         await writeLeaderboard();
+        //  await writeLeaderboard();
       }
       return this.gameOver({ username: hitResult });
     } else {

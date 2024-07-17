@@ -141,7 +141,7 @@ export class TeamGameController {
     return this.playersReady;
   }
   // shooter name and position
-  async shoot(username: string, pos: Position, teamAgain?: boolean) {
+  shoot(username: string, pos: Position, teamAgain?: boolean) {
     // doTheShooting
     let teamName = this.team1Names.find((player) => player === username)
       ? Team1Name
@@ -268,7 +268,7 @@ export class TeamGameController {
         this.userObjects.forEach(async (user) => {
           await updateUserData(user);
         });
-        await writeLeaderboard();
+        // await writeLeaderboard();
       }
       logger.debug(" in hitResult string" + JSON.stringify(hitResult));
       return this.gameOver({ username: teamName });
