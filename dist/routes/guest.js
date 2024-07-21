@@ -33,6 +33,9 @@ const LVL_MAX = 1000;
  *       403:
  *         description: Operation not allowed
  */
+/**
+ * Default to 404 if someone tries to create multiple guests
+ */
 exports.guestRouter.post("/all", (_req, res, _next) => __awaiter(void 0, void 0, void 0, function* () {
     res.sendStatus(403);
 }));
