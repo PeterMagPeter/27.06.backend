@@ -11,6 +11,7 @@ import { configureCORS } from './configCORS';
 import { userRouter } from './routes/user';
 import { guestRouter } from './routes/guest';
 import { verificationRouter } from './routes/verification';
+import swaggerDocument from './swaggerConfig';
 
 const app = express();
 configureCORS(app);
@@ -20,7 +21,7 @@ app.use('*', express.json());
 app.use(cookieParser());
 
 // Routes
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs)); // Swagger setup
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument)); // Swagger setup
 app.use("/api/login", loginRouter);
 app.use("/api/user", userRouter);
 app.use("/api/guest", guestRouter);
