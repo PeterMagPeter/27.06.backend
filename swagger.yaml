@@ -327,47 +327,6 @@ components:
           type: boolean
       required: ['email', 'password', 'username']
 
-    UserCreate:
-      type: object
-      properties:
-        email:
-          type: string
-          format: email
-          minLength: 5
-          maxLength: 45
-        password:
-          type: string
-          minLength: 8
-          maxLength: 100
-        username:
-          type: string
-          minLength: 3
-          maxLength: 30
-      required: ['email', 'password', 'username']
-
-    UserUpdate:
-      type: object
-      properties:
-        _id:
-          type: string
-          format: mongoId
-        email:
-          type: string
-          minLength: 5
-          maxLength: 45
-        password:
-          type: string
-          minLength: 8
-          maxLength: 100
-        premium:
-          type: boolean
-        gameSound:
-          type: number
-        music:
-          type: number
-        higherLvlChallenge:
-          type: boolean
-
     Guest:
       type: object
       properties:
@@ -397,56 +356,6 @@ components:
         higherLvlChallenge:
           type: boolean
       required: ['username']
-
-    GuestCreate:
-      type: object
-      properties:
-        username:
-          type: string
-          minLength: 3
-          maxLength: 30
-        points:
-          type: integer
-          minimum: 0
-          maximum: 1000000
-        level:
-          type: integer
-          minimum: 1
-          maximum: 1000
-        gameSound:
-          type: number
-          minimum: 0
-          maximum: 1
-        music:
-          type: number
-          minimum: 0
-          maximum: 1
-      required: ['username']
-
-    GuestUpdate:
-      type: object
-      properties:
-        id:
-          type: string
-          format: mongoId
-        points:
-          type: integer
-          minimum: 0
-          maximum: 1000000
-        level:
-          type: integer
-          minimum: 1
-          maximum: 1000
-        gameSound:
-          type: number
-          minimum: 0
-          maximum: 1
-        music:
-          type: number
-          minimum: 0
-          maximum: 1
-        higherLvlChallenge:
-          type: boolean
 
     OnlineMatch:
       type: object
