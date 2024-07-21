@@ -149,7 +149,7 @@ const swaggerOptions = {
       }
     }
   },
-  apis: ['src/routes/*.ts', 'dist/routes/*.js'] // Include both TypeScript and JavaScript files
+  apis: ['./src/routes/*.ts', './dist/routes/*.js'] // Überprüfen Sie diese Pfade
 };
 
 const swaggerDocs = swaggerJsdoc(swaggerOptions);
